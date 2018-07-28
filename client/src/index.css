@@ -1,5 +1,41 @@
-body {
-  margin: 0;
-  padding: 0;
-  font-family: sans-serif;
+body, html {
+    height: 100%;
+}
+
+body > div#root,
+body > div#root > div.App,
+body > div#root > div.App > div {
+  height: 100%;
+}
+
+.teal-bg {
+  background: #3fd1c4;
+}
+
+.teal-color {
+  color: #3fd1c4;
+}
+
+hr.large {
+    max-width: 200px;
+    height: 4px;
+    border: 0px;
+    border-radius: 5px;
+    margin: 10px auto;
+}
+
+.ui.grid {
+  margin-top: auto;
+}
+
+/* Navbar */
+a.item.nav-logo {
+    font-family: Dosis;
+    font-size: 23px;
+    letter-spacing: .5px;
+}
+
+.ui.segment.pushable.sidebar-container {
+    border-radius: 0px;
+    border: 0px;
 }

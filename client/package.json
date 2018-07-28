@@ -1,19 +1,24 @@
 {
-  "name": "stoctopus-client",
-  "version": "0.1.0",
-  "private": true,
-  "dependencies": {
-    "gulp": "^3.9.1",
-    "react": "^16.4.1",
-    "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4",
-    "semantic-ui": "^2.3.3",
-    "semantic-ui-react": "^0.82.1"
-  },
-  "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
-  }
+   "name": "stoctopus-client",
+   "version": "0.1.0",
+   "private": true,
+   "dependencies": {
+      "gulp": "^3.9.1",
+      "jwt-decode": "^2.2.0",
+      "react": "^16.4.1",
+      "react-redux": "^5.0.7",
+      "react-dom": "^16.4.1",
+      "react-router-dom": "^4.3.1",
+      "react-scripts": "1.1.4",
+      "semantic-ui": "^2.3.3",
+      "redux-thunk": "^2.3.0",
+      "redux": "^3.7.2",
+      "semantic-ui-react": "^0.82.1"
+   },
+   "scripts": {
+      "start": "react-scripts start",
+      "build": "react-scripts build",
+      "test": "react-scripts test --env=jsdom",
+      "eject": "react-scripts eject"
+   }
 }
