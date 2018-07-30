@@ -1,5 +1,8 @@
 /*******************************
      User Global Variables
 *******************************/
+@fontName: 'Hind'
 @primaryColor : @teal;
 @teal : #3fd1c4;
+@black: #071013;
+@linkColor : @teal;

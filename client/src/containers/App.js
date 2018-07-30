@@ -6,73 +6,144 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import jwtDecode from 'jwt-decode';
 import { render } from 'react-dom';
-import { Button, Container, Header, Icon, Image, Menu, Segment, Sidebar, Grid } from 'semantic-ui-react';
+import { Button, Container, Header, Icon, List, Image, Menu, Segment, Grid, Form, Input, TextArea } from 'semantic-ui-react';
+import heroImg from '../images/designs/chip.png';
 
 class App extends Component {
   state = {
     visible: false,
+    open: false,
+    options: [
+    {
+      key: 'google',
+      text: 'Google',
+      value: 'google'
+    },
+    {
+      key: 'friendFamily',
+      text: 'Friend/Family',
+      value: 'friendFamily'
+    },
+    {
+      key: 'other',
+      text: 'Other',
+      value: 'other'
+    },
+    ]
   }
 
   toggleVisibility = () => {
-    this.setState({
-      visible: !this.state.visible,
-    })
+    if (this.state.visible) {
+      this.setState({
+        visible: !this.state.visible,
+      })
+      setTimeout(()=>{
+        this.setState({
+          open: !this.state.open,
+        })
+      },500)
+    } else {
+      this.setState({
+        visible: !this.state.visible,
+        open: true,
+      })
+    }
   }
 
   render() {
-    const { visible } = this.state;
+    const { visible, options, open } = this.state;
     return (
       <div className="App">
         <div>
-          <Sidebar.Pushable className="sidebar-container" as={Segment}>
-            <Sidebar
-              as={Menu}
-              animation='slide along'
-              icon='labeled'
-              inverted
-              onHide={this.toggleVisibility}
-              vertical
-              visible={visible}
-              width='thin'
-            >
-              <Menu.Item as='a'>
-                <Icon name='home' />
-                Home
-              </Menu.Item>
-              <Menu.Item as='a'>
-                <Icon name='gamepad' />
-                Games
-              </Menu.Item>
-              <Menu.Item as='a'>
-                <Icon name='camera' />
-                Channels
-              </Menu.Item>
-            </Sidebar>
-
-            <Sidebar.Pusher dimmed={visible}>
-              <Navbar onSidebarToggle={this.toggleVisibility} />
-                <Container text style={{ marginTop: '7em' }}>
-                  <Header textAlign='center' as='h1'>Request a Demo Today</Header>
-                  <hr className='large teal-bg' />
-                  <Grid textAlign='center' style={{ height: '100%' }} verticalAlign='middle'>
-                    <p>
-                      Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean commodo ligula eget dolor.
-                      Aenean massa strong. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur
-                      ridiculus mus. Donec quam felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla
-                      consequat massa quis enim. Donec pede justo, fringilla vel, aliquet nec, vulputate eget, arcu.
-                      In enim justo, rhoncus ut, imperdiet a, venenatis vitae, justo. Nullam dictum felis eu pede
-                      link mollis pretium. Integer tincidunt. Cras dapibus. Vivamus elementum semper nisi. Aenean
-                      vulputate eleifend tellus. Aenean leo ligula, porttitor eu, consequat vitae, eleifend ac,
-                      enim. Aliquam lorem ante, dapibus in, viverra quis, feugiat a, tellus. Phasellus viverra nulla
-                      ut metus varius laoreet. Quisque rutrum. Aenean imperdiet. Etiam ultricies nisi vel augue.
-                      Curabitur ullamcorper ultricies nisi.
-                    </p>
-                    <Button primary>Click Here</Button>
-                  </Grid>
-                </Container>
-              <Footer />
-            </Sidebar.Pusher>
-          </Sidebar.Pushable>
+          <Navbar />
+          <Container style={{ marginTop: '8em', maxWidth:`800px !important` }}>
+            <Header textAlign='center' as='h1' className="dosis large" >Smarter Inventory Management</Header>
+            <hr className='large teal-bg' />
+            <Grid container columns={2} stackable style={{ marginTop: '1em'}}>
+                <Grid.Column verticalAlign="middle" >
+                  <Image src={heroImg} className="hero-img" />
+                  <List className="hero-features">
+                    <List.Item>
+                      <List.Item>
+                        <List.Content>
+                          <p>
+                            <strong className="teal-color">Quick Setup: </strong>
+                            Just import your inventory from one of our <a href="">integrated partners</a> or upload a <a href="">.csv file</a> with your product data to get started.
+                          </p>
+                        </List.Content>
+                      </List.Item>
+                      <List.Content>
+                        <p>
+                          <strong className="teal-color">Easy to Use: </strong>
+                          Stoctopus is a complete warehouse management solution that actually makes sense to implement. Our software seemlessly integrates into any warehouse workflow and lets you focus on growing your business.
+                        </p>
+                      </List.Content>
+                    </List.Item>
+                    <List.Item>
+                      <List.Content>
+                        <p>
+                          <strong className="teal-color">Inventory Scanner: </strong>
+                          Quickly scan and process inbound or outbound purchase orders on the fly.
+                        </p>
+                      </List.Content>
+                    </List.Item>
+                  </List>
+                </Grid.Column>
+                <Grid.Column verticalAlign="middle" >
+                  <Header textAlign='center' as='h1' className="dosis" >Create an Account</Header>
+                  <Form>
+                      <Form.Group widths='equal'>
+                        <Form.Field
+                          id='form-input-control-first-name'
+                          control={Input}
+                          label='First Name'
+                          placeholder='First Name'
+                          className='stps-input required'
+                          size='large'
+                        />
+                        <Form.Field
+                          id='form-input-control-last-name'
+                          control={Input}
+                          label='Last Name'
+                          placeholder='Last Name'
+                          className='stps-input required'
+                          size='large'
+                        />
+                      </Form.Group>
+                      <Form.Field
+                        id='form-input-control-email'
+                        control={Input}
+                        label='Email Address'
+                        placeholder='email@website.com'
+                        className='stps-input required'
+                        size='large'
+                      />
+                      <Form.Field
+                        id='form-input-control-email'
+                        control={Input}
+                        label='Company Name'
+                        placeholder='Company Name'
+                        className='stps-input required'
+                        size='large'
+                      />
+                      <Form.Select
+                        className="stps-select"
+                        fluid label='Choose an Option'
+                        options={options}
+                        placeholder='Choose an Option'
+                      />
+                      <Form.Field
+                        id='form-button-control-public'
+                        size="huge"
+                        color="teal"
+                        control={Button}
+                        content='Get Started'
+                      />
+                    </Form>
+                </Grid.Column>
+            </Grid>
+          </Container>
+          <Footer />
         </div>
       </div>
     );
