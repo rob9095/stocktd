@@ -40,12 +40,9 @@ class Navbar extends Component {
           </Container>
         </Menu>
           <Grid container columns={1} stackable className="nav-menu-parent">
-            <Transition animation='slide down' duration={200} visible={this.state.navOpen}>
-            <Segment className="menu-container" >
-              <Header>This is a controlled portal</Header>
+            <Transition animation='slide down' duration={100} visible={this.state.navOpen}>
+            <Segment className="menu-container">
               <NavMenu />
-              <p>Portals have tons of great callback functions to hook into.</p>
-              <p>To close, simply click the close button or click away</p>
             </Segment>
             </Transition>
           </Grid>

@@ -6,6 +6,7 @@ import Navbar from './Navbar';
 import Footer from './Footer';
 import jwtDecode from 'jwt-decode';
 import { render } from 'react-dom';
+import IntegrationSection from '../components/IntegrationSection';
 import { Button, Container, Header, Icon, List, Image, Menu, Segment, Grid, Form, Input, TextArea } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
 
@@ -56,7 +57,7 @@ class App extends Component {
       <div className="App">
         <div>
           <Navbar />
-          <Container style={{ marginTop: '8em', maxWidth:`800px !important` }}>
+          <Container className="section hero" >
             <Header textAlign='center' as='h1' className="dosis large" >Smarter Inventory Management</Header>
             <hr className='large teal-bg' />
             <Grid container columns={2} stackable style={{ marginTop: '1em'}}>
@@ -143,6 +144,7 @@ class App extends Component {
                 </Grid.Column>
             </Grid>
           </Container>
+          <IntegrationSection />
           <Footer />
         </div>
       </div>

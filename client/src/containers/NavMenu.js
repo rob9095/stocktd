@@ -1,79 +1,89 @@
 import React, { Component } from 'react'
-import { Menu } from 'semantic-ui-react'
+import { Dropdown, Icon, Input, Menu, Transition, Form } from 'semantic-ui-react'
 
 class NavMenu extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeItem: null,
+      accountOpen: false,
+    }
+    this.toggleAccountOptions = this.toggleAccountOptions.bind(this)
+  }
   handleItemClick = name => this.setState({ activeItem: name })
+
+  toggleAccountOptions = () => {
+    this.setState({
+      accountOpen: !this.state.accountOpen,
+    })
+  }
 
   render() {
     const { activeItem } = this.state || {}
 
     return (
-
-      <Menu secondary vertical className="nav-menu" >
-        <Menu.Item>
-          <Menu.Header>Products</Menu.Header>
-
-          <Menu.Menu>
-            <Menu.Item
-              name='enterprise'
-              active={activeItem === 'enterprise'}
-              onClick={this.handleItemClick}
-            />
-            <Menu.Item
-              name='consumer'
-              active={activeItem === 'consumer'}
-              onClick={this.handleItemClick}
-            />
-          </Menu.Menu>
+      <Menu vertical className="nav-menu">
+        <Menu.Item
+          name='home'
+          active={activeItem === 'home'}
+          onClick={this.handleItemClick}
+        >
+          Home
         </Menu.Item>
-
-        <Menu.Item>
-          <Menu.Header>CMS Solutions</Menu.Header>
-
-          <Menu.Menu>
-            <Menu.Item
-              name='rails'
-              active={activeItem === 'rails'}
-              onClick={this.handleItemClick}
-            />
-            <Menu.Item
-              name='python'
-              active={activeItem === 'python'}
-              onClick={this.handleItemClick}
-            />
-            <Menu.Item name='php' active={activeItem === 'php'} onClick={this.handleItemClick} />
-          </Menu.Menu>
+        <Menu.Item
+          name='features'
+          active={activeItem === 'features'}
+          onClick={this.handleItemClick}
+        >
+          Features
         </Menu.Item>
-
-        <Menu.Item>
-          <Menu.Header>Hosting</Menu.Header>
-
-          <Menu.Menu>
-            <Menu.Item
-              name='shared'
-              active={activeItem === 'shared'}
-              onClick={this.handleItemClick}
-            />
-            <Menu.Item
-              name='dedicated'
-              active={activeItem === 'dedicated'}
-              onClick={this.handleItemClick}
-            />
-          </Menu.Menu>
+        <Menu.Item
+          name='pricing'
+          active={activeItem === 'pricing'}
+          onClick={this.handleItemClick}
+        >
+          Pricing
         </Menu.Item>
-
-        <Menu.Item>
-          <Menu.Header>Support</Menu.Header>
-
-          <Menu.Menu>
-            <Menu.Item name='email' active={activeItem === 'email'} onClick={this.handleItemClick}>
-              E-mail Support
+        <Menu.Item
+          name='integrations'
+          active={activeItem === 'integrations'}
+          onClick={this.handleItemClick}
+        >
+          Integrations
+        </Menu.Item>
+        <Menu.Item
+          name='account'
+          active={activeItem === 'account'}
+          onClick={this.toggleAccountOptions}
+        >
+          {this.state.accountOpen ? <Icon name='chevron up' color='teal' /> : <Icon name='chevron down' color='teal' />}
+          My Account
+        </Menu.Item>
+        <Transition animation='slide down' duration={200} visible={this.state.accountOpen}>
+          <Menu.Menu className="sub-menu">
+            <Menu.Item
+              name='login'
+              active={activeItem === 'login'}
+              onClick={this.handleItemClick}
+              >
+              Log in
             </Menu.Item>
-
-            <Menu.Item name='faq' active={activeItem === 'faq'} onClick={this.handleItemClick}>
-              FAQs
+            <Menu.Item
+              name='signup'
+              active={activeItem === 'signup'}
+              onClick={this.handleItemClick}
+              >
+              Sign up
             </Menu.Item>
           </Menu.Menu>
+        </Transition>
+        <Menu.Item
+          name='more'
+          active={activeItem === 'more'}
+          onClick={this.handleItemClick}
+        >
+          <Icon name='chevron down' color='teal' />
+          More
         </Menu.Item>
       </Menu>
     )
