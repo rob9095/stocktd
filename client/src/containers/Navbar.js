@@ -24,10 +24,9 @@ class Navbar extends Component {
           <Container>
             <Menu.Item as='a' className="nav-logo">
               <Image size='small' src={logo} style={{ marginRight: '1.5em' }} />
-              {/* stoctopus */}
             </Menu.Item>
-            <div className="nav-menu-icon" onClick={this.handleMenuClick} >
-              {/* {this.state.navOpen ? <Icon name='window close outline' size='large' /> : <Icon name='sidebar' size='large' />} */}
+            <Menu.Item as='a' className="no-hover" position="right" onClick={this.handleMenuClick}>
+            <div className="nav-menu-icon" >
               <div id="nav-icon" className={this.state.navOpen ? 'open' : ''}>
                 <span></span>
                 <span></span>
@@ -37,6 +36,7 @@ class Navbar extends Component {
                 <span></span>
               </div>
             </div>
+            </Menu.Item>
           </Container>
         </Menu>
         {this.state.navOpen && (

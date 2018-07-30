@@ -84,12 +84,12 @@ a.item.nav-logo {
 
 
 /* Hamburger Menu Icon */
+a.right.item.no-hover {
+    margin-right: 2vw;
+}
+
 .nav-menu-icon {
-  width: 40px;
-  right: 7vw;
-  position: fixed;
-  height: 8vh;
-  cursor: pointer;
+  width: 8px;
 }
 
 #nav-icon span {
