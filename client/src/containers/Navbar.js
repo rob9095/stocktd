@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {  Container, Dropdown, Image, Menu, Icon, TransitionablePortal, Segment, Reveal, Header } from 'semantic-ui-react';
+import {  Container, Dropdown, Image, Grid, Menu, Icon, Transition, Segment, Reveal, Header } from 'semantic-ui-react';
 import NavMenu from './NavMenu';
 import logo from '../images/designs/logo-1.png';
 
@@ -39,16 +39,16 @@ class Navbar extends Component {
             </Menu.Item>
           </Container>
         </Menu>
-        {this.state.navOpen && (
-          <TransitionablePortal transition={{animation: 'slide down', duration: 100}} onClose={this.handleMenuClick} open={this.state.navOpen}>
+          <Grid container columns={1} stackable className="nav-menu-parent">
+            <Transition animation='slide down' duration={200} visible={this.state.navOpen}>
             <Segment className="menu-container" >
               <Header>This is a controlled portal</Header>
               <NavMenu />
               <p>Portals have tons of great callback functions to hook into.</p>
               <p>To close, simply click the close button or click away</p>
             </Segment>
-          </TransitionablePortal>
-        )}
+            </Transition>
+          </Grid>
       </div>
     )
   }
