@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {  Container, Dropdown, Image, Menu, Icon, TransitionablePortal, Segment, Reveal, Header } from 'semantic-ui-react';
 import NavMenu from './NavMenu';
-import logo from '../images/stoctopus-char.png';
+import logo from '../images/designs/logo-1.png';
 
 class Navbar extends Component {
   constructor(props) {
@@ -23,8 +23,8 @@ class Navbar extends Component {
         <Menu fixed='top' borderless>
           <Container>
             <Menu.Item as='a' className="nav-logo">
-              <Image size='mini' src={logo} style={{ marginRight: '1.5em' }} />
-              stoctopus
+              <Image size='small' src={logo} style={{ marginRight: '1.5em' }} />
+              {/* stoctopus */}
             </Menu.Item>
             <div className="nav-menu-icon" onClick={this.handleMenuClick} >
               {/* {this.state.navOpen ? <Icon name='window close outline' size='large' /> : <Icon name='sidebar' size='large' />} */}
