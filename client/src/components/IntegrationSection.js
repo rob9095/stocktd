@@ -18,7 +18,7 @@ class IntegrationSection extends Component {
   render() {
     const { activeItem } = this.state;
     return(
-      <Container className="section grey-bg" fluid>
+      <Container id="integrations" className="section grey-bg" fluid>
         <Container className="pad">
           <Header textAlign='center' as='h1' className="dosis large" >Integrations</Header>
           <hr className='large teal-bg' />

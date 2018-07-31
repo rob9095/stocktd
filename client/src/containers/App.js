@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Provider } from 'react-redux';
 import { configureStore } from '../store';
 import { BrowserRouter as Router } from 'react-router-dom';
+import AnchorLink from 'react-anchor-link-smooth-scroll'
 import Navbar from './Navbar';
 import Footer from './Footer';
 import jwtDecode from 'jwt-decode';
@@ -69,7 +70,7 @@ class App extends Component {
                         <List.Content>
                           <p>
                             <strong className="teal-color">Quick Setup: </strong>
-                            Just import your inventory from one of our <a href="">integrated partners</a> or upload a <a href="">.csv file</a> with your product data to get started.
+                            Just import your inventory from one of our <AnchorLink href="#integrations">integrated partners</AnchorLink> or upload a <a href="">.csv file</a> with your product data to get started.
                           </p>
                         </List.Content>
                       </List.Item>
