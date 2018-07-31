@@ -17,7 +17,7 @@ class FeaturesSection extends Component {
           <div style={{margin: '60px 0px'}}>
             <Grid columns={2} doubling stackable>
               <Grid.Column>
-                <Menu size="massive" color="teal" pointing secondary vertical>
+                <Menu color="teal" pointing secondary vertical>
                   <Menu.Item name="inventory" active={activeItem === 'inventory'} onClick={this.handleItemClick} >
                     <Icon style={{float:'left', marginRight:'10px'}} name="check" color="teal"/>
                     Inventory Sync
