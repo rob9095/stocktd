@@ -8,6 +8,7 @@ import Footer from './Footer';
 import jwtDecode from 'jwt-decode';
 import { render } from 'react-dom';
 import IntegrationSection from '../components/IntegrationSection';
+import FeaturesSection from '../components/FeaturesSection';
 import { Button, Container, Header, Icon, List, Image, Menu, Segment, Grid, Form, Input, TextArea } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
 
@@ -146,6 +147,7 @@ class App extends Component {
             </Grid>
           </Container>
           <IntegrationSection />
+          <FeaturesSection />
           <Footer />
         </div>
       </div>

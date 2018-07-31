@@ -41,15 +41,19 @@ hr.large {
 }
 
 .section {
-  margin-top: 8em;
+  margin: 8em 0;
 }
 
 .section .pad {
-  padding: 6em 0px;
+  padding: 6em 0;
 }
 
 .section.grey-bg {
   background: #eee;
+}
+
+.no-hover {
+  background: transparent !important;
 }
 
 /* Home Page Hero */
