@@ -19,6 +19,14 @@ const userSchema = new mongoose.Schema({
 	profileImageUrl: {
 		type: String
 	},
+	companyName: {
+		type: String,
+		required: true,
+	},
+	companyId: {
+		type: mongoose.Schema.Types.ObjectId,
+		ref: 'Company'
+	}
 });
 
 userSchema.pre('save', async function(next) {

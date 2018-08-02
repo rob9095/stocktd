@@ -7,3 +7,4 @@ mongoose.connect('mongodb://localhost/stoctopus', {
 });
 
 module.exports.User = require('./user');
+module.exports.Company = require('./company');
