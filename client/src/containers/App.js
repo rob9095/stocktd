@@ -78,7 +78,7 @@ class App extends Component {
                       <List.Content>
                         <p>
                           <strong className="teal-color">Easy to Use: </strong>
-                          Stoctopus is a complete warehouse management solution that actually makes sense to implement. Our software seemlessly integrates into any warehouse workflow and lets you focus on growing your business.
+                          Stocktd is a complete warehouse management solution that actually makes sense to implement. Our software seemlessly integrates into any warehouse workflow and lets you focus on growing your business.
                         </p>
                       </List.Content>
                     </List.Item>

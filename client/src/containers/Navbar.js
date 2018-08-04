@@ -23,7 +23,7 @@ class Navbar extends Component {
         <Menu fixed='top' borderless>
           <Container>
             <Menu.Item as='a' className="nav-logo">
-              <Header as='h1' className="dosis" >stocktd</Header>
+              <Header as='h1' className="dosis">stocktd</Header>
             </Menu.Item>
             <Menu.Item as='a' className="no-hover" position="right" onClick={this.handleMenuClick}>
             <div className="nav-menu-icon" >

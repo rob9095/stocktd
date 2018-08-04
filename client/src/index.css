@@ -81,6 +81,23 @@ hr.large {
   font-size: 16px;
 }
 
+/* Features Section */
+p.features-text {
+  line-height: 30px;
+  color: #5c5c5c;
+  font-size: 18px;
+  max-width: 600px;
+}
+
+@media (max-width: 767px) {
+  h3.features-header {
+    text-align: center;
+  }
+  p.features-text {
+    text-align: center;
+  }
+}
+
 /* Nav Menu */
 
 .ui.container.stackable.one.column.grid.nav-menu-parent {
