@@ -9,6 +9,7 @@ import jwtDecode from 'jwt-decode';
 import { render } from 'react-dom';
 import IntegrationSection from '../components/IntegrationSection';
 import FeaturesSection from '../components/FeaturesSection';
+import PricingSection from '../components/PricingSection';
 import { Button, Container, Header, Icon, List, Image, Menu, Segment, Grid, Form, Input, TextArea } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
 
@@ -148,6 +149,7 @@ class App extends Component {
           </Container>
           <IntegrationSection />
           <FeaturesSection />
+          <PricingSection />
           <Footer />
         </div>
       </div>
