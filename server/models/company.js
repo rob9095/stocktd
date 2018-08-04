@@ -9,7 +9,7 @@ const companySchema = new mongoose.Schema({
   plan: {
     type: String,
     required: true,
-    default: "Free",
+    default: "free",
   },
   users: [{
     type: mongoose.Schema.Types.ObjectId,

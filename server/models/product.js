@@ -5,6 +5,11 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  skuCompany: {
+    type: String,
+    required: true,
+    unique: true,
+  },
   title: {
     type: String,
   },
