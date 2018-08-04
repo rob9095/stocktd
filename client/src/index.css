@@ -52,6 +52,10 @@ hr.large {
   background: #eee;
 }
 
+.section.end-section {
+  margin-bottom: -8em !important;
+}
+
 .no-hover {
   background: transparent !important;
 }

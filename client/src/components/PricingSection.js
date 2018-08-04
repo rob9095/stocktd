@@ -5,7 +5,7 @@ class PricingSection extends Component {
 
   render() {
     return(
-      <Container id="pricing" className="section grey-bg no-margin" fluid>
+      <Container id="pricing" className="section grey-bg no-margin end-section" fluid>
         <Container className="pad">
           <Header textAlign='center' as='h1' className="dosis large" >Pricing</Header>
           <hr className='large teal-bg' />
@@ -18,15 +18,15 @@ class PricingSection extends Component {
                   <div className="plan-list">
                     <List>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right' color="teal" size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right' color="teal" size="small"/>
                         50 Product SKUs
                       </List.Item>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right' color="teal" size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right' color="teal" size="small"/>
                         1 User
                       </List.Item>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right' color="teal" size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right' color="teal" size="small"/>
                         Simple Locations
                       </List.Item>
                     </List>
@@ -42,15 +42,15 @@ class PricingSection extends Component {
                   <div className="plan-list">
                     <List>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right' size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right' size="small"/>
                         Unlimited Product SKUs
                       </List.Item>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right'size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right'size="small"/>
                         Unlimited Users
                       </List.Item>
                       <List.Item>
-                        <List.Icon verticalAlign="middle" name='arrow right' size="small"/>
+                        <List.Icon verticalAlign="middle" name='caret right' size="small"/>
                         Enhanced Locations
                       </List.Item>
                     </List>
