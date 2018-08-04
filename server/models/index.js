@@ -8,11 +8,11 @@ mongoose.connect('mongodb://localhost/stoctopus', {
 
 module.exports.User = require('./user');
 module.exports.Company = require('./company');
-module.exports.Company = require('./integration');
-module.exports.Company = require('./boxScan');
-module.exports.Company = require('./product');
-module.exports.Company = require('./location');
-module.exports.Company = require('./poProduct');
-module.exports.Company = require('./purchaseOrder');
-module.exports.Company = require('./order');
-module.exports.Company = require('./orderProduct');
+module.exports.Integration = require('./integration');
+module.exports.BoxScan = require('./boxScan');
+module.exports.Product = require('./product');
+module.exports.Location = require('./location');
+module.exports.PoProduct = require('./poProduct');
+module.exports.PurchaseOrder = require('./purchaseOrder');
+module.exports.Order = require('./order');
+module.exports.OrderProduct = require('./orderProduct');
