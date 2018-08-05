@@ -103,13 +103,17 @@ p.features-text {
 }
 
 /* Pricing Section */
+.plan {
+  padding: 30px !important;
+}
+
 .plan-price {
   display: inline-block !important;
   margin: -1px 0px 20px 0px !important;
 }
 
 .featured-plan {
-  padding: 30px !important;
+  min-height: 325px;
 }
 
 .featured-button {
@@ -123,6 +127,7 @@ p.features-text {
 
 .plan-list {
   font-size: 16px;
+  margin: 0px 0px 30px;
 }
 
 /* Nav Menu */

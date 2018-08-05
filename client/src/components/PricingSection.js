@@ -12,7 +12,7 @@ class PricingSection extends Component {
           <div style={{margin: '60px 0px'}}>
             <Grid container columns={2} doubling stackable textAlign="center" verticalAlign="middle">
               <Grid.Column>
-                <Segment>
+                <Segment className="plan">
                   <Header as="h2" className="plan-title">Starter</Header>
                   <Header as="h1"  className="plan-price">FREE</Header>
                   <div className="plan-list">
@@ -30,12 +30,12 @@ class PricingSection extends Component {
                         Simple Locations
                       </List.Item>
                     </List>
-                    <Button className="plan-button" size="large" color="teal">Sign Up</Button>
                   </div>
+                  <Button className="plan-button" size="large" color="teal">Sign Up</Button>
                 </Segment>
               </Grid.Column>
               <Grid.Column>
-                <Segment inverted color="teal" className="featured-plan">
+                <Segment inverted color="teal" className="plan featured-plan">
                   <Header as="h2" className="plan-title">Standard</Header>
                   <Header as="h1" className="plan-price">$20</Header>
                   <div style={{display: 'inline-block'}}>/month</div>
@@ -54,8 +54,8 @@ class PricingSection extends Component {
                         Enhanced Locations
                       </List.Item>
                     </List>
-                    <Button size="large" className="plan-button featured-button">Sign Up</Button>
                   </div>
+                  <Button size="large" className="plan-button featured-button">Sign Up</Button>
                 </Segment>
               </Grid.Column>
             </Grid>
