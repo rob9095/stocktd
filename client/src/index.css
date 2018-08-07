@@ -81,7 +81,7 @@ hr.large {
 }
 
 .hero-features p {
-  padding: 5px 5px;
+  padding: 10px 5px;
   max-width: 500px;
   margin: 0 auto;
   line-height: 30px;
@@ -117,7 +117,8 @@ p.features-text {
 }
 
 .featured-plan {
-  min-height: 325px;
+  display: flex;
+  flex-direction: column;
 }
 
 .featured-button {
