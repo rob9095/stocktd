@@ -5,18 +5,13 @@ import computer from '../images/designs/computer.png';
 import {  Container, Grid, Header, Image, Responsive } from 'semantic-ui-react';
 
 class FeaturesSection extends Component {
-  state = { activeItem: 'inventory' }
-
-  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
-
   render() {
-    const { activeItem } = this.state;
     return(
-      <Container id="features" className="section" fluid>
+      <Container id="features" className="section no-margin" fluid>
         <Container>
           <Header textAlign='center' as='h1' className="dosis large">Core Features</Header>
           <hr className='large teal-bg' />
-          <div style={{margin: '60px 0px'}}>
+          <div style={{margin: '40px 0px'}}>
             <Grid verticalAlign="middle" container columns={2} stackable>
               <Grid.Column width="6"  textAlign='center'>
                 <img src={computer} width="200px" />
@@ -36,7 +31,7 @@ class FeaturesSection extends Component {
                   </Responsive>
                   <Header className="features-header" as='h3'>Order & Shipping Automation</Header>
                   <p className="features-text">
-                    With stocktd you can easily manage all your orders in one central dashboard. We automatically save product weights and shipping preferences to make order fulfillment a breeze.
+                    Easily manage and ship all your orders from one central dashboard. We automatically save product weights and shipping preferences to make order fulfillment a breeze.
                   </p>
                 </Grid.Column>
                 <Responsive minWidth={768}>

@@ -10,7 +10,7 @@ class PricingSection extends Component {
           <Header textAlign='center' as='h1' className="dosis large" >Pricing</Header>
           <hr className='large teal-bg' />
           <div style={{margin: '60px 0px'}}>
-            <Grid container columns={2} doubling stackable textAlign="center" verticalAlign="middle">
+            <Grid container className="pricing-grid no-margin" columns={2} textAlign="center" verticalAlign="middle">
               <Grid.Column>
                 <Segment className="plan">
                   <Header as="h2" className="plan-title">Starter</Header>
@@ -31,7 +31,7 @@ class PricingSection extends Component {
                       </List.Item>
                     </List>
                   </div>
-                  <Button className="plan-button" size="large" color="teal">Sign Up</Button>
+                  <Button size="large" className="plan-button" color="teal">Sign Up</Button>
                 </Segment>
               </Grid.Column>
               <Grid.Column>
@@ -60,6 +60,12 @@ class PricingSection extends Component {
               </Grid.Column>
             </Grid>
           </div>
+          <Grid container columns={1} textAlign="center" verticalAlign="middle">
+            <Grid.Column>
+              <div className="questions">Still have some questions?</div>
+              <Button size="large" color="teal">Contact Us</Button>
+            </Grid.Column>
+          </Grid>
         </Container>
       </Container>
     )

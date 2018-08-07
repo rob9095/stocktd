@@ -10,6 +10,10 @@ body > div, {
   background: #3fd1c4;
 }
 
+.white-color {
+    color: #fff !important;
+}
+
 .teal-color {
   color: #3fd1c4;
 }
@@ -53,7 +57,7 @@ hr.large {
 }
 
 .section.end-section {
-  margin-bottom: -8em !important;
+  margin-bottom: -5em !important;
 }
 
 .no-hover {
@@ -121,7 +125,7 @@ p.features-text {
 }
 
 .plan-button {
-  width: 200px;
+  width: 100%;
   margin: 10px;
 }
 
@@ -129,6 +133,25 @@ p.features-text {
   font-size: 16px;
   margin: 0px 0px 30px;
 }
+
+div.questions {
+  font-size: 16px;
+  font-weight: bold;
+  margin: 15px 0px;
+}
+
+@media (max-width: 550px) {
+  .pricing-grid .column {
+    width: 100% !important;
+  }
+}
+
+
+/* Integrations Section */
+.int-img {
+  margin: 0 auto;
+}
+
 
 /* Nav Menu */
 
@@ -214,7 +237,7 @@ a.right.item.no-hover {
 }
 
 #nav-icon span:nth-child(odd) {
-  left:4px;
+  left:5px;
   border-radius: 9px 0 0 9px;
 }
 

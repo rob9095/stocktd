@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Container, Divider, Grid, Header, Image, List, Segment } from 'semantic-ui-react';
-import logo from '../images/stoctopus-char.png';
 
 class Footer extends Component {
   constructor(props) {
@@ -53,7 +52,7 @@ class Footer extends Component {
             </Grid>
 
             <Divider inverted section />
-            <Image centered size='mini' src={logo} />
+            <Header as='h3' className="dosis white-color">stocktd</Header>
             <List horizontal inverted divided link>
               <List.Item as='a' href='#'>
                 Site Map

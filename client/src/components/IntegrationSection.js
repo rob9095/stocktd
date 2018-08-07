@@ -51,22 +51,22 @@ class IntegrationSection extends Component {
               <Grid columns={4} doubling stackable>
                 <Grid.Column>
                   <Segment>
-                    <Image src={amazonImg} />
+                    <Image className="int-img" src={amazonImg} />
                   </Segment>
                 </Grid.Column>
                 <Grid.Column>
                   <Segment>
-                    <Image src={walmartImg} />
+                    <Image className="int-img" src={walmartImg} />
                   </Segment>
                 </Grid.Column>
                 <Grid.Column>
                   <Segment>
-                    <Image src={shopifyImg} />
+                    <Image className="int-img" src={shopifyImg} />
                   </Segment>
                 </Grid.Column>
                 <Grid.Column>
                   <Segment>
-                    <Image src={wooImg} />
+                    <Image className="int-img" src={wooImg} />
                   </Segment>
                 </Grid.Column>
               </Grid>
@@ -75,17 +75,17 @@ class IntegrationSection extends Component {
               <Grid columns={3} doubling stackable>
                 <Grid.Column>
                   <Segment>
-                    <Image src={uspsImg} />
+                    <Image className="int-img" src={uspsImg} />
                   </Segment>
                 </Grid.Column>
                 <Grid.Column>
                   <Segment>
-                    <Image src={upsImg} />
+                    <Image className="int-img" src={upsImg} />
                   </Segment>
                 </Grid.Column>
                 <Grid.Column>
                   <Segment>
-                    <Image src={fedexImg} />
+                    <Image className="int-img" src={fedexImg} />
                   </Segment>
                 </Grid.Column>
               </Grid>
