@@ -2,8 +2,14 @@
 
 /* Gobal */
 body, html,
-body > div, {
+body > div,
+.App > div,
+.App > div > .main-container {
     height: 100%;
+}
+
+.main-container {
+  margin-top: 8em;
 }
 
 .teal-bg {
@@ -19,11 +25,11 @@ body > div, {
 }
 
 hr.large {
-    max-width: 180px;
-    height: 4px;
-    border: 0px;
-    border-radius: 5px;
-    margin: 10px auto;
+  max-width: 180px;
+  height: 4px;
+  border: 0px;
+  border-radius: 5px;
+  margin: 10px auto;
 }
 
 .ui.grid {
@@ -39,9 +45,9 @@ hr.large {
 }
 
 .center.aligned.middle.aligned.column {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .section {

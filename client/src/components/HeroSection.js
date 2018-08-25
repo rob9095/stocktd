@@ -1,33 +1,53 @@
 import React, { Component } from 'react';
 import { Button, Container, Header, List, Form, Grid, Image, Input } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
-import AnchorLink from 'react-anchor-link-smooth-scroll'
+import AnchorLink from 'react-anchor-link-smooth-scroll';
+import { Link } from 'react-router-dom';
+
+const options =
+[
+  {
+    key: 'google',
+    text: 'Google',
+    value: 'google'
+  },
+  {
+    key: 'friendFamily',
+    text: 'Friend/Family',
+    value: 'friendFamily'
+  },
+  {
+    key: 'other',
+    text: 'Other',
+    value: 'other'
+  },
+]
 
 class HeroSection extends Component {
-  state = {
-    options: [
-    {
-      key: 'google',
-      text: 'Google',
-      value: 'google'
-    },
-    {
-      key: 'friendFamily',
-      text: 'Friend/Family',
-      value: 'friendFamily'
-    },
-    {
-      key: 'other',
-      text: 'Other',
-      value: 'other'
-    },
-    ]
+  constructor(props) {
+    super(props);
+    this.state = {
+      firstName: '',
+      lastName: '',
+      company: '',
+      email: '',
+      referredBy: '',
+    }
   }
 
+  handleChange = e => {
+    this.setState({
+      [e.target.name]: e.target.value
+    });
+  };
+
+  handleSelect = (e, { value }) => this.setState({ referredBy: value })
+
+
   render() {
-    const { options } = this.state;
+    const { firstName, lastName, company, email, referredBy } = this.state;
     return(
-      <Container className="section hero" >
+      <Container className="section hero">
         <Header textAlign='center' as='h1' className="dosis large" >Smarter Inventory Management</Header>
         <hr className='large teal-bg' />
         <Grid container columns={2} stackable style={{ marginTop: '1em'}}>
@@ -65,7 +85,10 @@ class HeroSection extends Component {
               <Form>
                   <Form.Group widths='equal'>
                     <Form.Field
-                      id='form-input-control-first-name'
+                      id="firstName"
+                      name="firstName"
+                      onChange={this.handleChange}
+                      value={firstName}
                       control={Input}
                       label='First Name'
                       placeholder='First Name'
@@ -73,7 +96,10 @@ class HeroSection extends Component {
                       size='large'
                     />
                     <Form.Field
-                      id='form-input-control-last-name'
+                      id="lastName"
+                      name="lastName"
+                      onChange={this.handleChange}
+                      value={lastName}
                       control={Input}
                       label='Last Name'
                       placeholder='Last Name'
@@ -82,7 +108,10 @@ class HeroSection extends Component {
                     />
                   </Form.Group>
                   <Form.Field
-                    id='form-input-control-email'
+                    id="email"
+                    name="email"
+                    onChange={this.handleChange}
+                    value={email}
                     control={Input}
                     label='Email Address'
                     placeholder='email@website.com'
@@ -90,7 +119,10 @@ class HeroSection extends Component {
                     size='large'
                   />
                   <Form.Field
-                    id='form-input-control-email'
+                    id="company"
+                    name="company"
+                    onChange={this.handleChange}
+                    value={company}
                     control={Input}
                     label='Company Name'
                     placeholder='Company Name'
@@ -98,11 +130,18 @@ class HeroSection extends Component {
                     size='large'
                   />
                   <Form.Select
+                    onChange={this.handleSelect}
+                    value={referredBy}
                     className="stps-select"
-                    fluid label='Choose an Option'
+                    fluid
+                    label='Choose an Option'
                     options={options}
                     placeholder='Choose an Option'
                   />
+                  <Link to={{
+                    pathname: "/signup",
+                    formValues: this.state,
+                  }}>
                   <Form.Field
                     id='form-button-control-public'
                     size="huge"
@@ -110,6 +149,7 @@ class HeroSection extends Component {
                     control={Button}
                     content='Get Started'
                   />
+                  </Link>
                 </Form>
             </Grid.Column>
         </Grid>

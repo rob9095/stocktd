@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {  Container, Dropdown, Image, Grid, Menu, Icon, Transition, Segment, Reveal, Header } from 'semantic-ui-react';
 import NavMenu from './NavMenu';
-import logo from '../images/designs/logo-1.png';
+import { Link } from 'react-router-dom';
 
 class Navbar extends Component {
   constructor(props) {
@@ -23,7 +23,9 @@ class Navbar extends Component {
         <Menu fixed='top' borderless>
           <Container>
             <Menu.Item as='a' className="nav-logo">
-              <Header as='h1' className="dosis">stocktd</Header>
+              <Link to="/">
+                <Header as='h1' className="dosis">stocktd</Header>
+              </Link>
             </Menu.Item>
             <Menu.Item as='a' className="no-hover" position="right" onClick={this.handleMenuClick}>
             <div className="nav-menu-icon" >

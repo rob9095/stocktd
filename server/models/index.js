@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 mongoose.set('debug', true);
 mongoose.Promise = Promise;
 
-mongoose.connect('mongodb://localhost/stoctopus', {
+mongoose.connect('mongodb://localhost/stocktd', {
 	keepAlive: true
 });
 
