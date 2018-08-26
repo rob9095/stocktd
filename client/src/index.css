@@ -122,6 +122,10 @@ p.features-text {
   margin: -1px 0px 20px 0px !important;
 }
 
+.plan-price span.price-per {
+  font-size: 14px;
+}
+
 .featured-plan {
   display: flex;
   flex-direction: column;

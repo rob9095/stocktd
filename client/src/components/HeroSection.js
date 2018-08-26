@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { Button, Container, Header, List, Form, Grid, Image, Input } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
-import { HashLink as Link } from 'react-router-hash-link';
+import { HashLink as AnchorLink } from 'react-router-hash-link';
+import { Link } from 'react-router-dom';
 
 const options =
 [
@@ -58,7 +59,7 @@ class HeroSection extends Component {
                     <List.Content>
                       <p>
                         <strong className="teal-color">Quick Setup: </strong>
-                        Just import your inventory from one of our <Link scroll={el => el.scrollIntoView({ behavior: 'smooth'})} to="#integrations">integrated partners</Link> or upload a <a href="">.csv file</a> with your product data to get started.
+                        Just import your inventory from one of our <AnchorLink scroll={el => el.scrollIntoView({ behavior: 'smooth'})} to="#integrations">integrated partners</AnchorLink> or upload a <a href="">.csv file</a> with your product data to get started.
                       </p>
                     </List.Content>
                   </List.Item>

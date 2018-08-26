@@ -19,7 +19,7 @@ class PricingSection extends Component {
                     <List>
                       <List.Item>
                         <List.Icon verticalAlign="middle" name='caret right' color="teal" size="small"/>
-                        50 Product SKUs
+                        50 SKUs
                       </List.Item>
                       <List.Item>
                         <List.Icon verticalAlign="middle" name='caret right' color="teal" size="small"/>
@@ -37,13 +37,12 @@ class PricingSection extends Component {
               <Grid.Column>
                 <Segment inverted color="teal" className="plan featured-plan">
                   <Header as="h2" className="plan-title">Standard</Header>
-                  <Header as="h1" className="plan-price">$20</Header>
-                  <div style={{display: 'inline-block'}}>/month</div>
+                  <Header as="h1" className="plan-price">$20<span className="price-per">/month</span></Header>
                   <div className="plan-list">
                     <List>
                       <List.Item>
                         <List.Icon verticalAlign="middle" name='caret right' size="small"/>
-                        Unlimited Product SKUs
+                        Unlimited SKUs
                       </List.Item>
                       <List.Item>
                         <List.Icon verticalAlign="middle" name='caret right'size="small"/>

@@ -15,9 +15,7 @@ class AuthForm extends Component {
 	}
 
   componentDidMount() {
-    if (this.props.history.formValues) {
-      console.log(this.props.history.formValues)
-    }
+		console.log(this.props.history.location.formValues)
 		goToTop();
   }
 
