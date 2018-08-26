@@ -22,10 +22,8 @@ class Navbar extends Component {
       <div>
         <Menu fixed='top' borderless>
           <Container>
-            <Menu.Item as='a' className="nav-logo">
-              <Link to="/">
-                <Header as='h1' className="dosis">stocktd</Header>
-              </Link>
+            <Menu.Item as={Link} to="/" className="nav-logo">
+              <Header as='h1' className="dosis">stocktd</Header>
             </Menu.Item>
             <Menu.Item as='a' className="no-hover" position="right" onClick={this.handleMenuClick}>
             <div className="nav-menu-icon" >
@@ -44,7 +42,9 @@ class Navbar extends Component {
           <Grid container columns={1} stackable className="nav-menu-parent">
             <Transition animation='slide down' duration={100} visible={this.state.navOpen}>
             <Segment className="menu-container">
-              <NavMenu />
+              <NavMenu
+                handleMenuClose={this.handleMenuClick}
+              />
             </Segment>
             </Transition>
           </Grid>

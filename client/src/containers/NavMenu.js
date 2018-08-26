@@ -1,5 +1,6 @@
-import React, { Component } from 'react'
-import { Dropdown, Icon, Input, Menu, Transition, Form } from 'semantic-ui-react'
+import React, { Component } from 'react';
+import { Dropdown, Icon, Input, Menu, Transition, Form } from 'semantic-ui-react';
+import { HashLink as Link } from 'react-router-hash-link';
 
 class NavMenu extends Component {
   constructor(props) {
@@ -8,9 +9,11 @@ class NavMenu extends Component {
       activeItem: null,
       accountOpen: false,
     }
-    this.toggleAccountOptions = this.toggleAccountOptions.bind(this)
   }
-  handleItemClick = name => this.setState({ activeItem: name })
+  handleItemClick = (name) => {
+    this.setState({ activeItem: name })
+    this.props.handleMenuClose();
+  }
 
   toggleAccountOptions = () => {
     this.setState({
@@ -24,6 +27,8 @@ class NavMenu extends Component {
     return (
       <Menu vertical className="nav-menu">
         <Menu.Item
+          as={Link}
+          to="/"
           name='home'
           active={activeItem === 'home'}
           onClick={this.handleItemClick}
@@ -31,6 +36,9 @@ class NavMenu extends Component {
           Home
         </Menu.Item>
         <Menu.Item
+          scroll={el => el.scrollIntoView({ behavior: 'smooth'})}
+          as={Link}
+          to="/#features"
           name='features'
           active={activeItem === 'features'}
           onClick={this.handleItemClick}
@@ -38,6 +46,9 @@ class NavMenu extends Component {
           Features
         </Menu.Item>
         <Menu.Item
+          as={Link}
+          scroll={el => el.scrollIntoView({ behavior: 'smooth'})}
+          to="/#pricing"
           name='pricing'
           active={activeItem === 'pricing'}
           onClick={this.handleItemClick}
@@ -45,6 +56,9 @@ class NavMenu extends Component {
           Pricing
         </Menu.Item>
         <Menu.Item
+          as={Link}
+          scroll={el => el.scrollIntoView({ behavior: 'smooth'})}
+          to="/#integrations"
           name='integrations'
           active={activeItem === 'integrations'}
           onClick={this.handleItemClick}
@@ -59,9 +73,11 @@ class NavMenu extends Component {
           {this.state.accountOpen ? <Icon name='chevron up' color='teal' /> : <Icon name='chevron down' color='teal' />}
           My Account
         </Menu.Item>
-        <Transition animation='slide down' duration={200} visible={this.state.accountOpen}>
+        <Transition animation='fade' duration={200} visible={this.state.accountOpen}>
           <Menu.Menu className="sub-menu">
             <Menu.Item
+              as={Link}
+              to="/signin"
               name='login'
               active={activeItem === 'login'}
               onClick={this.handleItemClick}
@@ -69,6 +85,8 @@ class NavMenu extends Component {
               Log in
             </Menu.Item>
             <Menu.Item
+              as={Link}
+              to="/signup"
               name='signup'
               active={activeItem === 'signup'}
               onClick={this.handleItemClick}

@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { Button, Container, Header, List, Form, Grid, Image, Input } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
-import AnchorLink from 'react-anchor-link-smooth-scroll';
-import { Link } from 'react-router-dom';
+import { HashLink as Link } from 'react-router-hash-link';
 
 const options =
 [
   {
     key: 'google',
-    text: 'Google',
+    text: 'Google/Search Engine',
     value: 'google'
   },
   {
@@ -59,7 +58,7 @@ class HeroSection extends Component {
                     <List.Content>
                       <p>
                         <strong className="teal-color">Quick Setup: </strong>
-                        Just import your inventory from one of our <AnchorLink href="#integrations">integrated partners</AnchorLink> or upload a <a href="">.csv file</a> with your product data to get started.
+                        Just import your inventory from one of our <Link scroll={el => el.scrollIntoView({ behavior: 'smooth'})} to="#integrations">integrated partners</Link> or upload a <a href="">.csv file</a> with your product data to get started.
                       </p>
                     </List.Content>
                   </List.Item>
@@ -92,7 +91,7 @@ class HeroSection extends Component {
                       control={Input}
                       label='First Name'
                       placeholder='First Name'
-                      className='stps-input required'
+                      className='stps-input'
                       size='large'
                     />
                     <Form.Field
@@ -103,7 +102,7 @@ class HeroSection extends Component {
                       control={Input}
                       label='Last Name'
                       placeholder='Last Name'
-                      className='stps-input required'
+                      className='stps-input'
                       size='large'
                     />
                   </Form.Group>
@@ -134,7 +133,7 @@ class HeroSection extends Component {
                     value={referredBy}
                     className="stps-select"
                     fluid
-                    label='Choose an Option'
+                    label='How did you find us?'
                     options={options}
                     placeholder='Choose an Option'
                   />

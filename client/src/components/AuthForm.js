@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
 import { Link } from 'react-router-dom';
+import { goToTop } from 'react-scrollable-anchor';
 
 class AuthForm extends Component {
 	constructor(props) {
@@ -17,6 +18,7 @@ class AuthForm extends Component {
     if (this.props.history.formValues) {
       console.log(this.props.history.formValues)
     }
+		goToTop();
   }
 
 	handleChange = e => {
@@ -38,7 +40,7 @@ class AuthForm extends Component {
 	};
 
 	render() {
-		const { email, username, password, profileImageUrl } = this.state;
+		const { email, username, password, company } = this.state;
 		const { signUp, heading, buttonText, errors, history, removeError } = this.props;
 
 		history.listen(() => {
@@ -70,6 +72,20 @@ class AuthForm extends Component {
                   value={email}
                   className='stps-input required'
                 />
+								{signUp && (
+									<Form.Input
+										fluid
+										icon='building'
+										iconPosition='left'
+										placeholder='Company Name'
+										autoComplete="off"
+										id="company"
+										name="company"
+										value={company}
+										onChange={this.handleChange}
+										className='stps-input required'
+									/>
+								)}
                 <Form.Input
                   fluid
                   icon='lock'
@@ -79,44 +95,21 @@ class AuthForm extends Component {
                   autoComplete="off"
                   id="password"
                   name="password"
+									value={password}
                   onChange={this.handleChange}
                   className='stps-input required'
                 />
-                {signUp && (
-                  <div>
-                    <label htmlFor="username">Username:</label>
-                    <input
-                      autoComplete="off"
-                      className="form-control"
-                      id="username"
-                      name="username"
-                      onChange={this.handleChange}
-                      value={username}
-                      type="text"
-                    />
-                    <label htmlFor="image-url">Image Url:</label>
-                    <input
-                      autoComplete="off"
-                      className="form-control"
-                      id="image-url"
-                      name="profileImageUrl"
-                      onChange={this.handleChange}
-                      type="text"
-                      value={profileImageUrl}
-                    />
-                  </div>
-                )}
-                <Button color='teal' fluid size='large'>
+                <Button color='teal' fluid size='huge'>
                   {buttonText}
                 </Button>
               </Segment>
             </Form>
             {signUp ?
-              <Message>
+              <Message size="large">
                 Already have an account? <Link to="/signin">Log in</Link>
               </Message>
               :
-              <Message>
+              <Message size="large">
                 New to stocktd? <Link to="/signup">Sign up</Link>
               </Message>
             }

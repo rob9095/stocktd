@@ -203,11 +203,16 @@ div.questions {
 }
 
 /* Navbar */
-a.item.nav-logo {
+.nav-logo {
   font-family: Dosis;
   font-size: 23px;
   letter-spacing: .5px;
   font-weight: 700 !important;
+}
+
+.nav-logo:hover {
+  cursor: pointer;
+  background: rgba(0,0,0,.03) !important;
 }
 
 
