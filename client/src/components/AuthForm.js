@@ -8,15 +8,25 @@ class AuthForm extends Component {
 		super(props);
 		this.state = {
 			email: '',
-			username: '',
 			password: '',
 			company: '',
+			firstName: '',
+			lastName: '',
+			referredBy: '',
 		};
 	}
 
   componentDidMount() {
-		console.log(this.props.history.location.formValues)
 		goToTop();
+		if(this.props.history.location.formValues) {
+			Object.entries(this.props.history.location.formValues).forEach((val)=>{
+				if (val[1]) {
+					this.setState({
+						[val[0]]: val[1]
+					})
+				}
+			})
+		}
   }
 
 	handleChange = e => {
@@ -38,7 +48,7 @@ class AuthForm extends Component {
 	};
 
 	render() {
-		const { email, username, password, company } = this.state;
+		const { email, password, company, firstName, lastName, referredBy } = this.state;
 		const { signUp, heading, buttonText, errors, history, removeError } = this.props;
 
 		history.listen(() => {
@@ -54,10 +64,13 @@ class AuthForm extends Component {
               {heading}
             </Header>
             {errors.message && (
-              <div className="alert alert-danger">{errors.message}</div>
+							<Message
+								error
+								content={errors.message}
+							/>
             )}
             <Form size='large' onSubmit={this.handleSubmit}>
-              <Segment stacked>
+              <Segment raised>
                 <Form.Input
                   fluid
                   icon='user'
@@ -88,7 +101,7 @@ class AuthForm extends Component {
                   fluid
                   icon='lock'
                   iconPosition='left'
-                  placeholder='Password'
+                  placeholder={signUp ? 'Password (at least 6 characters)' : 'Password'}
                   type='password'
                   autoComplete="off"
                   id="password"
