@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Button, Container, Header, List, Form, Grid, Image, Input } from 'semantic-ui-react';
 import heroImg from '../images/designs/chip.png';
 import { HashLink as AnchorLink } from 'react-router-hash-link';
-import { Link } from 'react-router-dom';
+import { Link, Redirect } from 'react-router-dom';
 
 const options =
 [
@@ -32,6 +32,9 @@ class HeroSection extends Component {
       company: '',
       email: '',
       referredBy: '',
+      redirect: false,
+      emailError: false,
+      companyError: false,
     }
   }
 
@@ -43,9 +46,52 @@ class HeroSection extends Component {
 
   handleSelect = (e, { value }) => this.setState({ referredBy: value })
 
+  validateInput = (value, type) => {
+    if (value.length < 1 || value === '') {
+      this.setState({
+        [type+'Error']: true,
+      })
+      return false
+    }
+    if (type === 'email' && value.indexOf('@') === -1) {
+      this.setState({
+        [type+'Error']: true,
+      })
+      return false
+    } else {
+      return true
+    }
+  }
+
+  clearErorrs = () => {
+    this.setState({
+      emailError: false,
+      companyError: false,
+    })
+  }
+
+  handleSubmit = (() => {
+    this.clearErorrs();
+    let emailCheck = this.validateInput(this.state.email, 'email')
+    let companyCheck = this.validateInput(this.state.company, 'company')
+    if (emailCheck && companyCheck) {
+      this.setState({
+        redirect: true,
+      })
+    }
+  })
 
   render() {
-    const { firstName, lastName, company, email, referredBy } = this.state;
+    const { firstName, lastName, company, email, referredBy, redirect, emailError, companyError } = this.state;
+    if (redirect) {
+      return(
+        <Redirect to={{
+          pathname: "/signup",
+          formValues: this.state,
+        }}
+         />
+      )
+    }
     return(
       <Container className="section hero">
         <Header textAlign='center' as='h1' className="dosis large" >Smarter Inventory Management</Header>
@@ -115,8 +161,9 @@ class HeroSection extends Component {
                     control={Input}
                     label='Email Address'
                     placeholder='email@website.com'
-                    className='stps-input required'
+                    className='stps-input'
                     size='large'
+                    error={emailError}
                   />
                   <Form.Field
                     id="company"
@@ -126,8 +173,9 @@ class HeroSection extends Component {
                     control={Input}
                     label='Company Name'
                     placeholder='Company Name'
-                    className='stps-input required'
+                    className='stps-input'
                     size='large'
+                    error={companyError}
                   />
                   <Form.Select
                     onChange={this.handleSelect}
@@ -138,18 +186,14 @@ class HeroSection extends Component {
                     options={options}
                     placeholder='Choose an Option'
                   />
-                  <Link to={{
-                    pathname: "/signup",
-                    formValues: this.state,
-                  }}>
                   <Form.Field
                     id='form-button-control-public'
                     size="huge"
                     color="teal"
                     control={Button}
                     content='Get Started'
+                    onClick={this.handleSubmit}
                   />
-                  </Link>
                 </Form>
             </Grid.Column>
         </Grid>
