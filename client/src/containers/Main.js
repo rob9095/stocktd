@@ -5,6 +5,7 @@ import { authUser } from '../store/actions/auth';
 import { removeError } from '../store/actions/errors';
 import Homepage from '../components/Homepage';
 import AuthForm from '../components/AuthForm';
+import NotFound from '../components/NotFound';
 
 const Main = props => {
 	const {authUser, errors, removeError, currentUser } = props;
@@ -45,6 +46,7 @@ const Main = props => {
 						);
 					}}
 				/>
+				<Route render={props => <NotFound currentUser={currentUser} {...props} />} />
 			</Switch>
 		</div>
 	);

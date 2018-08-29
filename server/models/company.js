@@ -8,7 +8,6 @@ const companySchema = new mongoose.Schema({
   },
   plan: {
     type: String,
-    required: true,
     default: "free",
   },
   users: [{
@@ -17,7 +16,6 @@ const companySchema = new mongoose.Schema({
   }],
   warehouseType: {
     type: String,
-    required: true,
     default: "simple",
   }
 })

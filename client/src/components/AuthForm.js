@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { Container, Button, Form, Grid, Header, Image, Message, Segment } from 'semantic-ui-react';
+import { connect } from 'react-redux';
+import { addError, removeError } from '../store/actions/errors';
 import { Link } from 'react-router-dom';
 import { goToTop } from 'react-scrollable-anchor';
 
@@ -13,6 +15,9 @@ class AuthForm extends Component {
 			firstName: '',
 			lastName: '',
 			referredBy: '',
+			emailError: false,
+			companyError: false,
+			passwordError: false,
 		};
 	}
 
@@ -35,9 +40,53 @@ class AuthForm extends Component {
 		});
 	};
 
+	validateInput = (value, type) => {
+		if (value.length < 1 || value === '') {
+			this.setState({
+				[type+'Error']: true,
+			})
+			this.props.addError('Please fill in the required inputs')
+			return false
+		}
+		if (type === 'email') {
+			let emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+			if (!emailRegex.test(value)) {
+				this.setState({
+					[type+'Error']: true,
+				})
+				this.props.addError('Invalid Email')
+				return false
+			}
+		}
+		if (type === 'password' && value.length < 6) {
+			this.setState({
+				[type+'Error']: true,
+			})
+			this.props.addError('Password must be at least 6 characters')
+			return false
+		}
+		return true
+	}
+
+	clearErrors = () => {
+		this.props.removeError();
+		this.setState({
+			emailError: false,
+			companyError: false,
+			passwordError: false,
+		})
+	}
+
 
 	handleSubmit = e => {
 		e.preventDefault();
+		this.clearErrors();
+		let emailCheck = this.validateInput(this.state.email, 'email')
+		let companyCheck = this.validateInput(this.state.company, 'company')
+		let passwordCheck = this.validateInput(this.state.password, 'password')
+		if (!emailCheck || !companyCheck || !passwordCheck) {
+			return
+		}
 		const authType = this.props.signUp ? 'signup' : 'signin';
 		this.props.onAuth(authType, this.state).then(() => {
 			this.props.history.push('/');
@@ -48,7 +97,7 @@ class AuthForm extends Component {
 	};
 
 	render() {
-		const { email, password, company, firstName, lastName, referredBy } = this.state;
+		const { email, password, company, firstName, lastName, referredBy, emailError, passwordError, companyError } = this.state;
 		const { signUp, heading, buttonText, errors, history, removeError } = this.props;
 
 		history.listen(() => {
@@ -82,6 +131,7 @@ class AuthForm extends Component {
                   onChange={this.handleChange}
                   value={email}
                   className='stps-input required'
+									error={emailError}
                 />
 								{signUp && (
 									<Form.Input
@@ -95,6 +145,7 @@ class AuthForm extends Component {
 										value={company}
 										onChange={this.handleChange}
 										className='stps-input required'
+										error={companyError}
 									/>
 								)}
                 <Form.Input
@@ -109,6 +160,7 @@ class AuthForm extends Component {
 									value={password}
                   onChange={this.handleChange}
                   className='stps-input required'
+									error={passwordError}
                 />
                 <Button color='teal' fluid size='huge'>
                   {buttonText}
@@ -132,4 +184,10 @@ class AuthForm extends Component {
 	}
 }
 
-export default AuthForm;
+function mapStateToProps(state) {
+	return {
+		errors: state.errors
+	};
+}
+
+export default connect(mapStateToProps, {addError, removeError})(AuthForm);

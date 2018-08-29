@@ -7,9 +7,10 @@ const userSchema = new mongoose.Schema({
 		required: true,
 		unique: true
 	},
-	username: {
+	company: {
 		type: String,
 		required: true,
+		unique: true,
 	},
 	password: {
 		type: String,
@@ -18,9 +19,14 @@ const userSchema = new mongoose.Schema({
 	profileImageUrl: {
 		type: String
 	},
-	companyName: {
+	firstName: {
 		type: String,
-		required: true,
+	},
+	lastName: {
+		type: String,
+	},
+	referredBy: {
+		type: String,
 	},
 	companyId: {
 		type: mongoose.Schema.Types.ObjectId,
@@ -28,12 +34,18 @@ const userSchema = new mongoose.Schema({
 	}
 });
 
+userSchema.path('email').validate(function (email) {
+	let emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+	return emailRegex.test(email);
+}, 'Invalid Email')
+
 userSchema.pre('save', async function(next) {
 	try {
 		if(!this.isModified('password')){
 			return next();
 		}
-		let hashedPassword = await bcrypt.hash(this.password, 10);
+		let salt = bcrypt.genSaltSync(10);
+		let hashedPassword = await bcrypt.hashSync(this.password, salt);
 		this.password = hashedPassword;
 		return next();
 	  } catch (err) {

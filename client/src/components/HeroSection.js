@@ -53,25 +53,27 @@ class HeroSection extends Component {
       })
       return false
     }
-    if (type === 'email' && value.indexOf('@') === -1) {
-      this.setState({
-        [type+'Error']: true,
-      })
-      return false
-    } else {
-      return true
+    if (type === 'email') {
+      let emailRegex = /^([\w-\.]+@([\w-]+\.)+[\w-]{2,4})?$/;
+      if (!emailRegex.test(value)) {
+        this.setState({
+          [type+'Error']: true,
+        })
+        return false
+      }
     }
+    return true
   }
 
-  clearErorrs = () => {
+  clearErrors = () => {
     this.setState({
       emailError: false,
       companyError: false,
     })
   }
 
-  handleSubmit = (() => {
-    this.clearErorrs();
+  handleSubmit = () => {
+    this.clearErrors();
     let emailCheck = this.validateInput(this.state.email, 'email')
     let companyCheck = this.validateInput(this.state.company, 'company')
     if (emailCheck && companyCheck) {
@@ -79,7 +81,7 @@ class HeroSection extends Component {
         redirect: true,
       })
     }
-  })
+  }
 
   render() {
     const { firstName, lastName, company, email, referredBy, redirect, emailError, companyError } = this.state;
