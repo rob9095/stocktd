@@ -7,6 +7,7 @@ mongoose.connect('mongodb://localhost/stocktd', {
 });
 
 module.exports.User = require('./user');
+module.exports.SignUpToken = require('./signUpToken');
 module.exports.Company = require('./company');
 module.exports.Integration = require('./integration');
 module.exports.BoxScan = require('./boxScan');

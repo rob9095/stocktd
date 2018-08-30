@@ -6,12 +6,14 @@ import { removeError } from '../store/actions/errors';
 import Homepage from '../components/Homepage';
 import AuthForm from '../components/AuthForm';
 import NotFound from '../components/NotFound';
+import VerifyEmail from '../components/VerifyEmail';
 
 const Main = props => {
 	const {authUser, errors, removeError, currentUser } = props;
 	return(
 		<div>
 			<Switch>
+				<Route path="/verify-email/:token_id" render={props => <VerifyEmail currentUser={currentUser} {...props} />} />
 				<Route exact path="/" render={props => <Homepage currentUser={currentUser} {...props} />} />
 				<Route
 					exact

@@ -1,5 +1,49 @@
 const db = require('../models');
 const jwt = require('jsonwebtoken');
+const { sendEmail } = require('../services/sendEmail');
+const verificationEmail = {
+	from: 'noreply@stocktd.com',
+	subject: 'Please confirm your email',
+}
+const emailStyles = `
+<style>
+	@import url('https://fonts.googleapis.com/css?family=Dosis:400,700');
+	@import url('https://fonts.googleapis.com/css?family=Lato:400,700');
+	.email-verify-container h2 {
+		font-family: Dosis;
+		font-size: xx-large;
+	}
+	.email-verify-container p {
+    line-height: 30px;
+    color: #5c5c5c;
+    font-size: 16px;
+	}
+	.email-verify-container {
+		max-width: 500px;
+		margin: 0 auto;
+		text-align: center;
+	}
+	.ui.teal.button {
+			background-color: #3fd1c4;
+			color: #fff;
+			text-shadow: none;
+			background-image: none;
+			font-size: 1.42857143rem;
+			-webkit-box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
+			box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
+			border: 1px solid #3fd1c4;
+			border-radius: 5px;
+			cursor: pointer;
+			font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
+			padding: .78571429em 1.5em .78571429em;
+			font-weight: 700;
+			font-size: large;
+	}
+	.ui.teal.button: hover {
+		background-color: #28cec0 !important;
+	}
+</style>
+`
 
 exports.signin = async function(req, res, next) {
 	try {
@@ -86,7 +130,11 @@ exports.signup = async function(req, res, next) {
 			name: req.body.company,
 		})
 		// create the user
-		let user = await db.User.create(req.body);
+		let userInfo = {
+			...req.body,
+			emailVerified: false,
+		}
+		let user = await db.User.create(userInfo);
 		createdCompany.users.push(user._id)
 		user.companyId = createdCompany._id
 		user.save();
@@ -100,6 +148,23 @@ exports.signup = async function(req, res, next) {
 		},
 		process.env.SECRET_KEY
 		);
+		// create the signup token
+		let signUpToken = await db.SignUpToken.create({email: req.body.email})
+		//send the verification email
+		let emailRes = sendEmail({
+			...verificationEmail,
+			to: req.body.email,
+			html: `
+				${emailStyles}
+				<div class="email-verify-container">
+					<h2>Welcome to stocktd</h2>
+					<p>Please click the link below to confirm your email address</p>
+					<a href="https://stocktd.com/verify-email/${signUpToken._id}"><button class="ui teal button">Confirm my email</button></a>
+					<p>Have some questions? <a href="#">Contact Us</a></p>
+				</div>
+			`,
+		})
+
 		return res.status(200).json({
 			id,
 			username,

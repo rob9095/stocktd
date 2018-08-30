@@ -23,6 +23,7 @@ class AuthForm extends Component {
 
   componentDidMount() {
 		goToTop();
+		this.props.removeError();
 		if(this.props.history.location.formValues) {
 			Object.entries(this.props.history.location.formValues).forEach((val)=>{
 				if (val[1]) {
