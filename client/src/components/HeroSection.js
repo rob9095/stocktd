@@ -163,7 +163,7 @@ class HeroSection extends Component {
                     control={Input}
                     label='Email Address'
                     placeholder='email@website.com'
-                    className='stps-input'
+                    className='stps-input required'
                     size='large'
                     error={emailError}
                   />
@@ -175,7 +175,7 @@ class HeroSection extends Component {
                     control={Input}
                     label='Company Name'
                     placeholder='Company Name'
-                    className='stps-input'
+                    className='stps-input required'
                     size='large'
                     error={companyError}
                   />

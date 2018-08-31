@@ -372,3 +372,12 @@ a.right.item.no-hover {
   border-right: 1px solid #3fd1c4 !important;
   border-top: 0px solid #fff;
 }
+
+/* Dashboard/App */
+.app-container {
+  padding-top: 0em !important;
+}
+
+.app-menu a.item {
+  font-weight: bold;
+}
