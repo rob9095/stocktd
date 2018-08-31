@@ -9,8 +9,8 @@ exports.processProductsCSV = async (req, res, next) => {
         message: 'No file uploaded'
       })
     }
-    let uploadFile = req.files.uploadFile;
-    uploadFile.mv(`${__dirname}/test.csv`)
+    let file = req.files.productcsv;
+    file.mv(`${__dirname}/test.csv`)
     const jsonProducts = await csv().fromFile(`${__dirname}/test.csv`)
     console.log(jsonProducts)
     return res.status(200).json(jsonProducts)

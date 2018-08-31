@@ -1,8 +1,23 @@
-import React, { Component } from 'react'
-import { Menu, Segment, Container, Grid, Dropdown, Button } from 'semantic-ui-react'
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { Menu, Segment, Container, Grid, Dropdown, Button, Form, Label } from 'semantic-ui-react';
+import { uploadLocalFile } from '../store/actions/fileUpload';
 
-export default class Dashboard extends Component {
-  state = { activeItem: 'home' }
+class Dashboard extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      activeItem: 'home',
+      activeFile: '',
+    }
+  }
+
+  handleFileUpload = (e) => {
+    this.setState({
+      activeFile: e.target.files[0].name
+    })
+    this.props.uploadLocalFile('post','/api/products/import-csv',e.target.files[0])
+  }
 
   handleItemClick = (e, { name }) => this.setState({ activeItem: name })
 
@@ -51,14 +66,33 @@ export default class Dashboard extends Component {
             <Grid container columns={1} verticalAlign="middle" stackable>
               <Grid.Column style={{minHeight: '200px'}}>
                 <p>{activeItem}</p>
-                <form ref='uploadForm'
-                  id='uploadForm'
-                  action='http://localhost:8080/api/products/import-csv'
-                  method='post'
-                  encType="multipart/form-data">
-                    <input type="file" name="uploadFile" />
-                    <input type='submit' value='Upload!' />
-                </form>
+                <Label
+                  as="label"
+                  style={{border: '0px'}}
+                  basic
+                  htmlFor="upload"
+                >
+                  <Button
+                    icon="upload"
+                    label={{
+                      basic: true,
+                      content: 'Select file'
+                    }}
+                    labelPosition="right"
+                  />
+                  <input
+                    hidden
+                    id="upload"
+                    type="file"
+                    onChange={(event)=> {
+                      this.handleFileUpload(event) 
+                    }}
+                    onClick={(event)=> {
+                      event.target.value = null
+                    }}
+                  />
+                </Label>
+                <h5>{this.state.activeFile}</h5>
               </Grid.Column>
             </Grid>
           </Segment>
@@ -67,3 +101,12 @@ export default class Dashboard extends Component {
     )
   }
 }
+
+function mapStateToProps(state) {
+	return {
+		currentUser: state.currentUser,
+    errors: state.errors,
+	};
+}
+
+export default connect(mapStateToProps, { uploadLocalFile })(Dashboard);
