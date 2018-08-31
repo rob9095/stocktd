@@ -83,7 +83,7 @@ class AuthForm extends Component {
 		e.preventDefault();
 		this.clearErrors();
 		let emailCheck = this.validateInput(this.state.email, 'email')
-		let companyCheck = this.validateInput(this.state.company, 'company')
+		let companyCheck = this.props.signUp ? this.validateInput(this.state.company, 'company') : true
 		let passwordCheck = this.validateInput(this.state.password, 'password')
 		if (!emailCheck || !companyCheck || !passwordCheck) {
 			return
