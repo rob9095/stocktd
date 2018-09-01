@@ -381,3 +381,8 @@ a.right.item.no-hover {
 .app-menu a.item {
   font-weight: bold;
 }
+
+.ui.item.dropdown.dropdown-active {
+  background: rgba(0,0,0,.05) !important;
+  color: rgba(0,0,0,.95) !important;
+}

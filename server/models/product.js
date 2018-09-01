@@ -5,38 +5,49 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  skuCompany: {
+  barcode: {
     type: String,
-    required: true,
-    unique: true,
   },
   title: {
     type: String,
   },
   quantity: {
     type: Number,
-    required: true,
+    default: 0,
+  },
+  quantityToShip: {
+    type: Number,
+    default: 0,
   },
   price: {
     type: Number,
+  },
+  supplier: {
+    type: String,
+  },
+  brand: {
+    type: String,
   },
   weight: {
     type: Number,
   },
   weightType: {
-    type: 'String',
+    type: String,
   },
   boxScans: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Box',
   }],
-  companyName: {
+  company: {
     type: String,
     required: true,
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
+  },
+  asin: {
+    type: String,
   }
 })
 

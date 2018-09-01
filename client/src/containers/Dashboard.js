@@ -1,22 +1,24 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Menu, Segment, Container, Grid, Dropdown, Button, Form, Label } from 'semantic-ui-react';
-import { uploadLocalFile } from '../store/actions/fileUpload';
+import { Switch, Route, withRouter, Link } from 'react-router-dom';
+import { Menu, Segment, Container, Grid, Dropdown, Button, } from 'semantic-ui-react';
+import InventoryDash from '../components/InventoryDash';
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeItem: 'home',
-      activeFile: '',
+      activeItem: '',
     }
   }
 
-  handleFileUpload = (e) => {
-    this.setState({
-      activeFile: e.target.files[0].name
-    })
-    this.props.uploadLocalFile('post','/api/products/import-csv',e.target.files[0])
+  componentDidMount() {
+    if (this.props.history.location.pathname){
+      let activeItem = this.props.history.location.pathname.split('/')[2]
+      this.setState({
+        activeItem: activeItem === undefined ? 'home' : activeItem
+      })
+    }
   }
 
   handleItemClick = (e, { name }) => this.setState({ activeItem: name })
@@ -29,32 +31,40 @@ class Dashboard extends Component {
         <Container className="pad app-container">
           <Menu stackable secondary size="huge" className="app-menu">
             <Menu.Item
+              as={Link}
+              to="/app"
               name='home'
               active={activeItem === 'home'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
+              as={Link}
+              to="/app/orders"
               name='orders'
               active={activeItem === 'orders'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
+              as={Link}
+              to="/app/inventory"
               name='inventory'
               active={activeItem === 'inventory'}
               onClick={this.handleItemClick}
             />
             <Menu.Item
+              as={Link}
+              to="/app/setup"
               name='setup'
               active={activeItem === 'setup'}
               onClick={this.handleItemClick}
             />
             <Menu.Menu position='right'>
-              <Dropdown item text='Account'>
-                <Dropdown.Menu>
-                  <Dropdown.Item>Profile</Dropdown.Item>
-                  <Dropdown.Item>Billing</Dropdown.Item>
-                  <Dropdown.Item>Notifications</Dropdown.Item>
-                  <Dropdown.Item>Permissions</Dropdown.Item>
+              <Dropdown item text='Account' className={activeItem === 'account' ? 'dropdown-active': ''}>
+                <Dropdown.Menu name='account'>
+                  <Dropdown.Item as={Link} to="/app/account/profile" name="account" onClick={this.handleItemClick}>Profile</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/billing" name="account" onClick={this.handleItemClick}>Billing</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/notifications" name="account" onClick={this.handleItemClick}>Notifications</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/permissions" name="account" onClick={this.handleItemClick}>Permissions</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               <Menu.Item>
@@ -62,39 +72,10 @@ class Dashboard extends Component {
               </Menu.Item>
             </Menu.Menu>
           </Menu>
-          <Segment raised>
-            <Grid container columns={1} verticalAlign="middle" stackable>
-              <Grid.Column style={{minHeight: '200px'}}>
-                <p>{activeItem}</p>
-                <Label
-                  as="label"
-                  style={{border: '0px'}}
-                  basic
-                  htmlFor="upload"
-                >
-                  <Button
-                    icon="upload"
-                    label={{
-                      basic: true,
-                      content: 'Select file'
-                    }}
-                    labelPosition="right"
-                  />
-                  <input
-                    hidden
-                    id="upload"
-                    type="file"
-                    onChange={(event)=> {
-                      this.handleFileUpload(event) 
-                    }}
-                    onClick={(event)=> {
-                      event.target.value = null
-                    }}
-                  />
-                </Label>
-                <h5>{this.state.activeFile}</h5>
-              </Grid.Column>
-            </Grid>
+          <Segment raised style={{minHeight: '200px'}}>
+            <Switch>
+              <Route path="/app/inventory" render={props => <InventoryDash {...props} />} />
+            </Switch>
           </Segment>
         </Container>
       </Container>
@@ -109,4 +90,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default connect(mapStateToProps, { uploadLocalFile })(Dashboard);
+export default withRouter(connect(mapStateToProps, {})(Dashboard));

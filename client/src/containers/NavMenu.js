@@ -111,7 +111,7 @@ class NavMenu extends Component {
               <Menu.Menu className="sub-menu">
                 <Menu.Item
                   as={Link}
-                  to="/dashboard"
+                  to="/app"
                   name='dashboard'
                   active={activeItem === 'dashboard'}
                   onClick={this.handleItemClick}
@@ -120,7 +120,7 @@ class NavMenu extends Component {
                 </Menu.Item>
                 <Menu.Item
                   as={Link}
-                  to="/acount"
+                  to="/app/account/profile"
                   name='account'
                   active={activeItem === 'account'}
                   onClick={this.handleItemClick}

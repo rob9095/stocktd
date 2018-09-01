@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { processProductsCSV } = require('../handlers/products');
+const { processProductsCSV, getProducts } = require('../handlers/products');
 
 router.post('/import-csv', processProductsCSV);
+router.post('', getProducts)
 
 module.exports = router;
