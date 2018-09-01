@@ -1,69 +1,26 @@
 const db = require('../models');
 const jwt = require('jsonwebtoken');
 const { sendEmail } = require('../services/sendEmail');
-const verificationEmail = {
-	from: 'noreply@stocktd.com',
-	subject: 'Please confirm your email',
-}
-const emailStyles = `
-<style>
-	@import url('https://fonts.googleapis.com/css?family=Dosis:400,700');
-	@import url('https://fonts.googleapis.com/css?family=Lato:400,700');
-	.email-verify-container h2 {
-		font-family: Dosis;
-		font-size: xx-large;
-	}
-	.email-verify-container p {
-    line-height: 30px;
-    color: #5c5c5c;
-    font-size: 16px;
-	}
-	.email-verify-container {
-		max-width: 500px;
-		margin: 0 auto;
-		text-align: center;
-	}
-	.ui.teal.button {
-			background-color: #3fd1c4;
-			color: #fff;
-			text-shadow: none;
-			background-image: none;
-			font-size: 1.42857143rem;
-			-webkit-box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
-			box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
-			border: 1px solid #3fd1c4;
-			border-radius: 5px;
-			cursor: pointer;
-			font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
-			padding: .78571429em 1.5em .78571429em;
-			font-weight: 700;
-			font-size: large;
-	}
-	.ui.teal.button: hover {
-		background-color: #28cec0 !important;
-	}
-</style>
-`
 
 exports.signin = async function(req, res, next) {
 	try {
 		let user = await db.User.findOne({
 			email: req.body.email
 		});
-		let { id, username, company } = user;
+		let { id, email, company } = user;
 		let isMatch = await user.comparePassword(req.body.password);
 		if(isMatch){
 			let token = jwt.sign(
 			{
 				id,
-				username,
+				email,
 				company
 			},
 				process.env.SECRET_KEY
 			);
 			return res.status(200).json({
 				id,
-				username,
+				email,
 				company,
 				token
 			});
@@ -139,11 +96,11 @@ exports.signup = async function(req, res, next) {
 		user.companyId = createdCompany._id
 		user.save();
 		createdCompany.save();
-		let { id, username, company } = user;
+		let { id, email, company } = user;
 		let token = jwt.sign(
 		{
 			id,
-			username,
+			email,
 			company
 		},
 		process.env.SECRET_KEY
@@ -151,11 +108,11 @@ exports.signup = async function(req, res, next) {
 		// create the signup token
 		let signUpToken = await db.SignUpToken.create({email: req.body.email})
 		//send the verification email
-		let emailRes = sendEmail({
-			...verificationEmail,
+		let emailRes = await sendEmail({
+			from: 'noreply@stocktd.com',
+			subject: 'Please confirm your email',
 			to: req.body.email,
 			html: `
-				${emailStyles}
 				<div class="email-verify-container">
 					<h2>Welcome to stocktd</h2>
 					<p>Please click the link below to confirm your email address</p>
@@ -167,7 +124,7 @@ exports.signup = async function(req, res, next) {
 
 		return res.status(200).json({
 			id,
-			username,
+			email,
 			company,
 			token
 		});

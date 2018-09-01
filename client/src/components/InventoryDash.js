@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import InventoryTable from './InventoryTable';
 import { Container, Grid, Button, Label } from 'semantic-ui-react';
 import { uploadLocalFile } from '../store/actions/fileUpload';
+import { resendUserVerificationEmail } from '../store/actions/account';
 
 class InventoryDash extends Component {
   constructor(props) {
@@ -21,12 +22,19 @@ class InventoryDash extends Component {
     this.props.uploadLocalFile('post','/api/products/import-csv',e.target.files[0], this.props.currentUser)
   }
 
+  handleResendVerEmail = () => {
+    this.props.resendUserVerificationEmail(this.props.currentUser.user.email)
+  }
+
   render() {
     const { currentUser, activeItem } = this.props
     return(
       <Grid container columns={1} verticalAlign="middle" stackable>
         <Grid.Column>
           <p>{activeItem}</p>
+          <Button onClick={this.handleResendVerEmail}>
+            resend verifcation email
+          </Button>
           <Label
             as="label"
             style={{border: '0px'}}
@@ -68,4 +76,4 @@ class InventoryDash extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {uploadLocalFile})(InventoryDash);
+ export default connect(mapStateToProps, {uploadLocalFile, resendUserVerificationEmail})(InventoryDash);

@@ -1,4 +1,5 @@
 const db = require('../models');
+const { sendEmail } = require('../services/sendEmail');
 
 exports.verifySignUpToken = async function(req, res, next) {
 	try {
@@ -30,3 +31,32 @@ exports.verifySignUpToken = async function(req, res, next) {
 		return next(err);
 	}
 };
+
+exports.resendVerificationEmail = async (req, res, next) => {
+	try {
+		let token = await db.SignUpToken.findOne({email: req.body.email})
+		if (token) {
+			let emailRes = await sendEmail({
+						from: 'noreply@stocktd.com',
+						subject: 'Please confirm your email',
+						to: req.body.email,
+						html: `
+							<div class="email-verify-container">
+								<h2>Welcome to stocktd</h2>
+								<p>Please click the link below to confirm your email address</p>
+								<a href="https://stocktd.com/verify-email/${token._id}"><button class="ui teal button">Confirm my email</button></a>
+								<p>Have some questions? <a href="#">Contact Us</a></p>
+							</div>
+						`,
+					})
+				return res.status(200).json({status: 'Email sent succesfully'})
+		} else {
+			return next({
+				status: 400,
+				message: 'Unable to resend email'
+			})
+		}
+	} catch(err) {
+		return next(err)
+	}
+}
