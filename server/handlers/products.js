@@ -37,7 +37,7 @@ exports.processProductsCSV = async (req, res, next) => {
 					filter: { skuCompany: `${p.sku}-${req.body.company}`},
 					update: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
 				}
-			}))	
+			}))
 			let updatedProducts = await db.Product.bulkWrite(products)
 			return res.status(200).json(updatedProducts)
 		} else {
