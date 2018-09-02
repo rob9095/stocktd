@@ -2,18 +2,17 @@ require('dotenv').load();
 const nodemailer = require('nodemailer');
 const emailStyles = `
 <style>
-	@import url('https://fonts.googleapis.com/css?family=Dosis:400,700');
 	@import url('https://fonts.googleapis.com/css?family=Lato:400,700');
-	.email-verify-container h2 {
-		font-family: Dosis;
+	.emailVerifyContainer h2 {
+		font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
 		font-size: xx-large;
 	}
-	.email-verify-container p {
+	.emailVerifyContainer p {
     line-height: 30px;
     color: #5c5c5c;
     font-size: 16px;
 	}
-	.email-verify-container {
+	.emailVerifyContainer {
 		max-width: 500px;
 		margin: 0 auto;
 		text-align: center;
@@ -24,7 +23,6 @@ const emailStyles = `
 			text-shadow: none;
 			background-image: none;
 			font-size: 1.42857143rem;
-			-webkit-box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
 			box-shadow: 0 0 0 0 rgba(34,36,38,.15) inset;
 			border: 1px solid #3fd1c4;
 			border-radius: 5px;
@@ -34,8 +32,9 @@ const emailStyles = `
 			font-weight: 700;
 			font-size: large;
 	}
-	.ui.teal.button: hover {
+	.ui.teal.button:hover {
 		background-color: #28cec0 !important;
+		cursor: pointer !important;
 	}
 </style>
 `
@@ -69,7 +68,16 @@ exports.sendEmail = async ({from, to, subject, text, html}) => {
       to,
       subject,
       text,
-      html: `${emailStyles} ${html}`
+      html: `
+				<html>
+				  <head>
+						${emailStyles}
+				  </head>
+				  <body>
+				    ${html}
+				  </body>
+				</html>
+			`,
     };
     console.log(config)
 

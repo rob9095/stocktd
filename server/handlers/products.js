@@ -2,6 +2,7 @@ const db = require('../models');
 const csv = require('csvtojson');
 
 exports.processProductsCSV = async (req, res, next) => {
+	req.setTimeout(9999999);
 	try {
     if (!req.files) {
       return next({
@@ -11,34 +12,46 @@ exports.processProductsCSV = async (req, res, next) => {
     }
     let file = req.files.productcsv;
     file.mv(`${__dirname}/test.csv`)
-    const jsonProducts = await csv().fromFile(`${__dirname}/test.csv`)
-		let productsUpdated = [];
-		let productsAdded = [];
-		let importErrors = [];
-		for (let p of jsonProducts) {
-			let foundProduct = await db.Product.findOne({sku: p.sku})
-			if (foundProduct) {
-				if (req.body.update === true) {
-					foundProduct.set(p)
-					foundProduct.save();
-					productsUpdated.push(foundProduct)
-				} else {
-					importErrors.push({...p, error: 'Product already exists'})
+    const jsonProducts = await csv().fromFile(`${__dirname}/test-sm.csv`)
+		if (req.body.update) {
+			// slow on large arrs
+			// let companyProducts = await db.Product.find({company: req.body.company})
+			// let products = jsonProducts.map(p => {
+			// 	if (companyProducts.some(({sku}) => sku === p.sku)){
+			// 		return {
+			// 			updateOne: {
+			// 				filter: { skuCompany: `${p.sku}-${req.body.company}`},
+			// 				update: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
+			// 			}
+			// 		}
+			// 	} else {
+			// 		return {
+			// 			insertOne: {
+			// 				document: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
+			// 			}
+			// 		}
+			// 	}
+			// })
+			let products = jsonProducts.map(p => ({
+				updateOne: {
+					filter: { skuCompany: `${p.sku}-${req.body.company}`},
+					update: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
 				}
-			} else {
-				let createdProduct = await db.Product.create({...p, company:req.body.company})
-				if (createdProduct) {
-					productsAdded.push(createdProduct)
+			}))	
+			let updatedProducts = await db.Product.bulkWrite(products)
+			return res.status(200).json(updatedProducts)
+		} else {
+			await db.Product.insertMany(products, function(error, productsAdded) {
+				if(error) {
+					return next({
+						status: 400,
+						message: error,
+					})
 				} else {
-					importErrors.push({...p, error: 'Unable to add product'})
+					return res.status(200).json(productsAdded)
 				}
-			}
+			});
 		}
-    return res.status(200).json({
-			productsAdded,
-			productsUpdated,
-			importErrors,
-		})
 	} catch(err) {
 		return next(err);
 	}

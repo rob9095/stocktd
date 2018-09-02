@@ -9,15 +9,27 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       activeItem: '',
+      pathname: '',
     }
+  }
+
+  setActiveItem = (pathname) => {
+    let activeItem = pathname.split('/')[2];
+    this.setState({
+      activeItem: activeItem === undefined ? 'home' : activeItem,
+      pathname,
+    })
   }
 
   componentDidMount() {
     if (this.props.history.location.pathname){
-      let activeItem = this.props.history.location.pathname.split('/')[2]
-      this.setState({
-        activeItem: activeItem === undefined ? 'home' : activeItem
-      })
+      this.setActiveItem(this.props.history.location.pathname)
+    }
+  }
+
+  componentWillReceiveProps(newProps) {
+    if (newProps.history.location.pathname != this.state.pathname) {
+      this.setActiveItem(newProps.history.location.pathname)
     }
   }
 

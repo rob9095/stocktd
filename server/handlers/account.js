@@ -1,5 +1,5 @@
 const db = require('../models');
-const { sendEmail } = require('../services/sendEmail');
+const { emailStyles, sendEmail } = require('../services/sendEmail');
 
 exports.verifySignUpToken = async function(req, res, next) {
 	try {
@@ -41,7 +41,7 @@ exports.resendVerificationEmail = async (req, res, next) => {
 						subject: 'Please confirm your email',
 						to: req.body.email,
 						html: `
-							<div class="email-verify-container">
+							<div class="emailVerifyContainer">
 								<h2>Welcome to stocktd</h2>
 								<p>Please click the link below to confirm your email address</p>
 								<a href="https://stocktd.com/verify-email/${token._id}"><button class="ui teal button">Confirm my email</button></a>
