@@ -8,6 +8,10 @@ const PoProductSchema = new mongoose.Schema({
   poName: {
     type: String,
   },
+  poType: {
+    type: String,
+    required: true,
+  },
   poSku: {
     type: String,
   },
@@ -22,14 +26,13 @@ const PoProductSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  companyName: {
+  company: {
     type: String,
     required: true,
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
-    required: true,
   },
   createdOn: {
     type: Date,

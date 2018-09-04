@@ -14,7 +14,7 @@ const PORT = 8080;
 
 app.use(fileUpload());
 app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '50mb'}));
 
 // all routes here
 

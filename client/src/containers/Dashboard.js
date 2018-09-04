@@ -9,34 +9,41 @@ class Dashboard extends Component {
     super(props);
     this.state = {
       activeItem: '',
+      activeSubItem: '',
       pathname: '',
     }
   }
 
-  setActiveItem = (pathname) => {
-    let activeItem = pathname.split('/')[2];
+  isMenuActive = (arg) => {
+    let pathArr = this.state.pathname.split('/');
+    if (pathArr.length !== 2 && arg === 'app') {
+      return false
+    } else if (pathArr.includes(arg)) {
+      return true
+    }
+    return false;
+  }
+
+  setPathname = (pathname) => {
     this.setState({
-      activeItem: activeItem === undefined ? 'home' : activeItem,
       pathname,
     })
   }
 
   componentDidMount() {
     if (this.props.history.location.pathname){
-      this.setActiveItem(this.props.history.location.pathname)
+      this.setPathname(this.props.history.location.pathname)
     }
   }
 
   componentWillReceiveProps(newProps) {
     if (newProps.history.location.pathname != this.state.pathname) {
-      this.setActiveItem(newProps.history.location.pathname)
+      this.setPathname(this.props.history.location.pathname)
     }
   }
 
-  handleItemClick = (e, { name }) => this.setState({ activeItem: name })
-
   render() {
-    const { activeItem } = this.state
+    const { activeItem, activeSubItem } = this.state
 
     return (
       <Container className="section" fluid>
@@ -45,38 +52,62 @@ class Dashboard extends Component {
             <Menu.Item
               as={Link}
               to="/app"
-              name='home'
-              active={activeItem === 'home'}
-              onClick={this.handleItemClick}
+              name="home"
+              active={this.isMenuActive('app')}
             />
             <Menu.Item
               as={Link}
               to="/app/orders"
               name='orders'
-              active={activeItem === 'orders'}
-              onClick={this.handleItemClick}
+              active={this.isMenuActive('orders')}
             />
-            <Menu.Item
-              as={Link}
-              to="/app/inventory"
-              name='inventory'
-              active={activeItem === 'inventory'}
-              onClick={this.handleItemClick}
-            />
+            <Dropdown
+              item
+              text='Inventory'
+              name="inventory"
+              className={this.isMenuActive('inventory') ? 'dropdown-active' : ''}
+            >
+              <Dropdown.Menu>
+                <Dropdown.Item
+                  as={Link}
+                  to="/app/inventory/products"
+                  name="products"
+                  active={this.isMenuActive('products')}
+                >
+                  Products
+                </Dropdown.Item>
+                <Dropdown.Item
+                  as={Link}
+                  to="/app/inventory/import-export"
+                  name="import-export"
+                  active={this.isMenuActive('import-export')}
+                >
+                  Import/Export
+                </Dropdown.Item>
+                <Dropdown.Item
+                  value="sales"
+                  as={Link}
+                  to="/app/inventory/sales"
+                  name="sales"
+                  active={this.isMenuActive('sales')}
+                >
+                  Sales
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
             <Menu.Item
               as={Link}
               to="/app/setup"
               name='setup'
-              active={activeItem === 'setup'}
-              onClick={this.handleItemClick}
+              active={this.isMenuActive('setup')}
             />
             <Menu.Menu position='right'>
-              <Dropdown item text='Account' className={activeItem === 'account' ? 'dropdown-active': ''}>
+              <Dropdown item text='Account' name="account" className={this.isMenuActive('account') ? 'dropdown-active' : ''}>
                 <Dropdown.Menu name='account'>
-                  <Dropdown.Item as={Link} to="/app/account/profile" name="account" onClick={this.handleItemClick}>Profile</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/app/account/billing" name="account" onClick={this.handleItemClick}>Billing</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/app/account/notifications" name="account" onClick={this.handleItemClick}>Notifications</Dropdown.Item>
-                  <Dropdown.Item as={Link} to="/app/account/permissions" name="account" onClick={this.handleItemClick}>Permissions</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/profile" name="account" active={this.isMenuActive('profile')}>Profile</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/billing" name="account" active={this.isMenuActive('billing')}>Billing</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/notifications" name="account" active={this.isMenuActive('notifications')}>Notifications</Dropdown.Item>
+                  <Dropdown.Item as={Link} to="/app/account/permissions" name="account" active={this.isMenuActive('permissions')}>Permissions</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
               <Menu.Item>
@@ -86,7 +117,7 @@ class Dashboard extends Component {
           </Menu>
           <Segment raised style={{minHeight: '200px'}}>
             <Switch>
-              <Route path="/app/inventory" render={props => <InventoryDash {...props} />} />
+              <Route path="/app/inventory/products" render={props => <InventoryDash {...props} />} />
             </Switch>
           </Segment>
         </Container>

@@ -6,6 +6,7 @@ import InventoryTable from './InventoryTable';
 import { Container, Grid, Button, Label } from 'semantic-ui-react';
 import { importProducts } from '../store/actions/products';
 import { resendUserVerificationEmail } from '../store/actions/account';
+import { parseCSV } from '../services/parseCSV';
 
 class InventoryDash extends Component {
   constructor(props) {
@@ -16,48 +17,9 @@ class InventoryDash extends Component {
     }
   }
 
-  handleFileUpload = (e) => {
-    // Check for File API support.
-    if (window.FileReader) {
-      // FileReader is supported.
-      if (!e.target.files[0].name.endsWith('.csv')) {
-        alert('not a csv')
-        return
-      }
-      this.setState({activeFile: e.target.files[0].name})
-      const reader = new FileReader();
-      reader.readAsText(e.target.files[0]);
-      reader.onload = this.parseCSV;
-      reader.onerror = this.errorHandler;
-    } else {
-      alert('Filereader not supported in this browser.');
-    }
-  }
-
-  parseCSV = (event) => {
-    const csv = event.target.result.split(/\r\n|\n/);
-    let json = [];
-    let headers = csv[0].split(',').map(r=>r)
-    for (let row = 0; row<csv.length-1; row++) {
-      if (row != 0) {
-        let obj = {};
-        csv[row].split(',').forEach((cell,index)=>{
-          obj = {
-            ...obj,
-            [headers[index]]: cell,
-          }
-        })
-        json.push(obj)
-      }
-    }
-    console.log(json)
+  handleFileUpload = async (e) => {
+    let json = await this.props.parseCSV(e)
     this.props.importProducts(json, this.props.currentUser, this.state.update)
-  }
-
-  errorHandler = (event) => {
-    if(event.target.error.name == "NotReadableError") {
-        alert("Unable to read file");
-    }
   }
 
   handleResendVerEmail = () => {
@@ -114,4 +76,4 @@ class InventoryDash extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {importProducts, resendUserVerificationEmail})(InventoryDash);
+ export default connect(mapStateToProps, {importProducts, resendUserVerificationEmail, parseCSV})(InventoryDash);

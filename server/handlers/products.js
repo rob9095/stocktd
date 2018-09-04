@@ -1,9 +1,7 @@
 const db = require('../models');
 
 exports.processProductImport = async (req, res, next) => {
-	//req.setTimeout(9999999);
 	try {
-		if (req.body.company)
 		if(req.body.update) {
 			let products = req.body.products.map(p => ({
 				updateOne: {

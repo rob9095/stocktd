@@ -17,6 +17,7 @@
     "dotenv": "^5.0.1",
     "express": "^4.16.3",
     "express-fileupload": "^0.4.0",
+    "jsonpack": "^1.1.5",
     "jsonwebtoken": "^8.2.0",
     "mongoose": "^5.0.10",
     "nodemailer": "^4.6.8"
