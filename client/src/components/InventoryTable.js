@@ -13,6 +13,8 @@ class InventoryTable extends Component {
       products: [],
       selected: [],
       selectAll: false,
+      column: '',
+      direction: '',
     }
   }
   componentDidMount() {
@@ -28,7 +30,7 @@ class InventoryTable extends Component {
 
   handleRowCheck = ((e, id) => {
     let selected = [...this.state.selected];
-    if (this.state.selected.includes(id)) {
+    if (this.state.selected.indexOf(id) != -1) {
       selected = this.state.selected.filter(s => s !== id)
     } else {
       selected.push(id)
@@ -36,7 +38,7 @@ class InventoryTable extends Component {
     this.setState({ selected });
   })
 
-  isSelected = id => this.state.selected.indexOf(id) !== -1;
+  isSelected = id => this.state.selected.indexOf(id) != -1;
 
   handleSelectAllClick = () => {
     if (!this.state.selectAll) {
@@ -50,14 +52,33 @@ class InventoryTable extends Component {
 
   handlePaginationChange = (e, { activePage }) => this.setState({ activePage })
 
+  handleSort = clickedColumn => () => {
+    const { column, products, direction } = this.state
+
+    if (column !== clickedColumn) {
+      this.setState({
+        column: clickedColumn,
+        products: products.sort((a,b)=> (a[clickedColumn] === undefined) - (b[clickedColumn] === undefined) || a[clickedColumn] < b[clickedColumn] ? -1 : 1 ),
+        direction: 'ascending',
+      })
+
+      return
+    }
+
+    this.setState({
+      products: products.reverse(),
+      direction: direction === 'ascending' ? 'descending' : 'ascending',
+    })
+  }
+
   render(){
-    let { isLoading, products, rowsPerPage, activePage, rowsPerPageOptions, selectAll } = this.state;
+    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction } = this.state;
     if (isLoading) {
       return(
         <Loader active />
       )
     }
-    let tableRows = this.state.products.slice(activePage * rowsPerPage, activePage * rowsPerPage + rowsPerPage).map(p => {
+    let tableRows = this.state.products.slice(rowsPerPage*(activePage-1), rowsPerPage*activePage).map(p => {
       const isSelected = this.isSelected(p._id);
       return (
         <Table.Row
@@ -82,7 +103,7 @@ class InventoryTable extends Component {
     })
     return(
       <div>
-        <Table celled compact definition>
+        <Table celled compact definition sortable>
           <Table.Header fullWidth>
             <Table.Row>
               <Table.HeaderCell colSpan={9}>
@@ -107,14 +128,45 @@ class InventoryTable extends Component {
                   checked={selectAll}
                 />
               </Table.HeaderCell>
-              <Table.HeaderCell>SKU</Table.HeaderCell>
-              <Table.HeaderCell>Title</Table.HeaderCell>
-              <Table.HeaderCell>Quantity</Table.HeaderCell>
-              <Table.HeaderCell>Quantity to Ship</Table.HeaderCell>
-              <Table.HeaderCell>Price</Table.HeaderCell>
-              <Table.HeaderCell>Weight</Table.HeaderCell>
-              <Table.HeaderCell>Brand</Table.HeaderCell>
-              <Table.HeaderCell>Supplier</Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'sku' ? direction : null}
+                onClick={this.handleSort('sku')}
+              >
+                SKU
+              </Table.HeaderCell>
+              <Table.HeaderCell
+              >
+              Title
+              </Table.HeaderCell>
+              <Table.HeaderCell
+                sorted={column === 'quantity' ? direction : null}
+                onClick={this.handleSort('quantity')}
+              >
+                Quantity
+              </Table.HeaderCell>
+              <Table.HeaderCell
+
+              >
+                Quantity to Ship
+              </Table.HeaderCell>
+              <Table.HeaderCell
+
+              >
+                Price
+              </Table.HeaderCell>
+              <Table.HeaderCell
+
+              >
+                Weight
+              </Table.HeaderCell>
+              <Table.HeaderCell
+              >
+                Brand
+              </Table.HeaderCell>
+              <Table.HeaderCell
+              >
+                Supplier
+              </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
 
