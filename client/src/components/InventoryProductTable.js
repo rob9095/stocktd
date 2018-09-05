@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination } from 'semantic-ui-react';
 import { fetchAllProducts } from '../store/actions/products';
 
-class InventoryTable extends Component {
+class InventoryProductTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -214,4 +214,4 @@ class InventoryTable extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {fetchAllProducts})(InventoryTable);
+ export default connect(mapStateToProps, {fetchAllProducts})(InventoryProductTable);

@@ -2,13 +2,13 @@ import React, { Component } from 'react';
 import { verifyUserEmail } from '../store/actions/account';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import InventoryTable from './InventoryTable';
-import { Container, Grid, Button, Label } from 'semantic-ui-react';
+import InventoryProductTable from './InventoryProductTable';
+import { Container, Grid, Button, Label, Header } from 'semantic-ui-react';
 import { importProducts } from '../store/actions/products';
 import { resendUserVerificationEmail } from '../store/actions/account';
 import { parseCSV } from '../services/parseCSV';
 
-class InventoryDash extends Component {
+class InventoryProducts extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -31,6 +31,7 @@ class InventoryDash extends Component {
     return(
       <Grid container columns={1} verticalAlign="middle" stackable>
         <Grid.Column>
+          <Header size='medium'>Products</Header>
           <p>{activeItem}</p>
           <Button onClick={this.handleResendVerEmail}>
             resend verifcation email
@@ -62,7 +63,7 @@ class InventoryDash extends Component {
             />
           </Label>
           <h5>{this.state.activeFile}</h5>
-          <InventoryTable />
+          <InventoryProductTable />
         </Grid.Column>
       </Grid>
     )
@@ -76,4 +77,4 @@ class InventoryDash extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {importProducts, resendUserVerificationEmail, parseCSV})(InventoryDash);
+ export default connect(mapStateToProps, {importProducts, resendUserVerificationEmail, parseCSV})(InventoryProducts);

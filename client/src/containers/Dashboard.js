@@ -2,14 +2,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Switch, Route, withRouter, Link } from 'react-router-dom';
 import { Menu, Segment, Container, Grid, Dropdown, Button, } from 'semantic-ui-react';
-import InventoryDash from '../components/InventoryDash';
+import InventoryProducts from '../components/InventoryProducts';
+import InventoryImport from '../components/InventoryImport';
 
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      activeItem: '',
-      activeSubItem: '',
       pathname: '',
     }
   }
@@ -32,18 +31,18 @@ class Dashboard extends Component {
 
   componentDidMount() {
     if (this.props.history.location.pathname){
-      this.setPathname(this.props.history.location.pathname)
+      this.setPathname(this.props.location.pathname)
     }
   }
 
   componentWillReceiveProps(newProps) {
-    if (newProps.history.location.pathname != this.state.pathname) {
-      this.setPathname(this.props.history.location.pathname)
+    if (newProps.location.pathname != this.props.location.pathname) {
+      this.setPathname(newProps.location.pathname)
     }
   }
 
   render() {
-    const { activeItem, activeSubItem } = this.state
+    const { } = this.state
 
     return (
       <Container className="section" fluid>
@@ -80,9 +79,17 @@ class Dashboard extends Component {
                   as={Link}
                   to="/app/inventory/import-export"
                   name="import-export"
-                  active={this.isMenuActive('import-export')}
+                  active={this.isMenuActive('import')}
                 >
-                  Import/Export
+                  Import
+                </Dropdown.Item>
+                <Dropdown.Item
+                  as={Link}
+                  to="/app/inventory/export"
+                  name="export"
+                  active={this.isMenuActive('export')}
+                >
+                  Export
                 </Dropdown.Item>
                 <Dropdown.Item
                   value="sales"
@@ -117,7 +124,8 @@ class Dashboard extends Component {
           </Menu>
           <Segment raised style={{minHeight: '200px'}}>
             <Switch>
-              <Route path="/app/inventory/products" render={props => <InventoryDash {...props} />} />
+              <Route path="/app/inventory/products" render={props => <InventoryProducts {...props} />} />
+              <Route path="/app/inventory/import-export" render={props => <InventoryImport {...props} />} />
             </Switch>
           </Segment>
         </Container>
