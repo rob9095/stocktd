@@ -350,7 +350,7 @@ a.right.item.no-hover {
   border-top: 1px solid #3fd1c4 !important;
   border-left: 1px solid #3fd1c4 !important;
   border-right: 1px solid #3fd1c4 !important;
-  border-bottom: 0px solid white;
+  border-bottom: 1px solid white;
 }
 
 .stps-select div.dropdown i.dropdown.icon {
@@ -385,4 +385,9 @@ a.right.item.no-hover {
 .ui.item.dropdown.dropdown-active {
   background: rgba(0,0,0,.05) !important;
   color: rgba(0,0,0,.95) !important;
+}
+
+th.table-header.no-select:hover {
+  background: inherit !important;
+  cursor: inherit !important;
 }

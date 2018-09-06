@@ -4,6 +4,7 @@ import { Switch, Route, withRouter, Link } from 'react-router-dom';
 import { Menu, Segment, Container, Grid, Dropdown, Button, } from 'semantic-ui-react';
 import InventoryProducts from '../components/InventoryProducts';
 import InventoryImport from '../components/InventoryImport';
+import PurchaseOrders from '../components/PurchaseOrders';
 
 class Dashboard extends Component {
   constructor(props) {
@@ -60,53 +61,18 @@ class Dashboard extends Component {
               name='orders'
               active={this.isMenuActive('orders')}
             />
-            <Dropdown
-              item
-              text='Inventory'
-              name="inventory"
-              className={this.isMenuActive('inventory') ? 'dropdown-active' : ''}
-            >
+            <Dropdown item text='Inventory' name="inventory" className={this.isMenuActive('inventory') ? 'dropdown-active' : ''}>
               <Dropdown.Menu>
-                <Dropdown.Item
-                  as={Link}
-                  to="/app/inventory/products"
-                  name="products"
-                  active={this.isMenuActive('products')}
-                >
-                  Products
-                </Dropdown.Item>
-                <Dropdown.Item
-                  as={Link}
-                  to="/app/inventory/import-export"
-                  name="import-export"
-                  active={this.isMenuActive('import')}
-                >
-                  Import
-                </Dropdown.Item>
-                <Dropdown.Item
-                  as={Link}
-                  to="/app/inventory/export"
-                  name="export"
-                  active={this.isMenuActive('export')}
-                >
-                  Export
-                </Dropdown.Item>
-                <Dropdown.Item
-                  value="sales"
-                  as={Link}
-                  to="/app/inventory/sales"
-                  name="sales"
-                  active={this.isMenuActive('sales')}
-                >
-                  Sales
-                </Dropdown.Item>
+                <Dropdown.Item as={Link} to="/app/inventory/products" name="products" active={this.isMenuActive('products')}>Products</Dropdown.Item>
+                <Dropdown.Item as={Link} to="/app/inventory/scanner" name="export" active={this.isMenuActive('scanner')}>Scanner</Dropdown.Item>
+                <Dropdown.Item as={Link} to="/app/inventory/import" name="import" active={this.isMenuActive('import')}>Import</Dropdown.Item>
               </Dropdown.Menu>
             </Dropdown>
             <Menu.Item
               as={Link}
-              to="/app/setup"
-              name='setup'
-              active={this.isMenuActive('setup')}
+              to="/app/purchase-orders"
+              name='Purchase Orders'
+              active={this.isMenuActive('purchase-orders')}
             />
             <Menu.Menu position='right'>
               <Dropdown item text='Account' name="account" className={this.isMenuActive('account') ? 'dropdown-active' : ''}>
@@ -122,12 +88,11 @@ class Dashboard extends Component {
               </Menu.Item>
             </Menu.Menu>
           </Menu>
-          <Segment raised style={{minHeight: '200px'}}>
             <Switch>
               <Route path="/app/inventory/products" render={props => <InventoryProducts {...props} />} />
-              <Route path="/app/inventory/import-export" render={props => <InventoryImport {...props} />} />
+              <Route path="/app/inventory/import" render={props => <InventoryImport {...props} />} />
+              <Route path="/app/purchase-orders" render={props => <PurchaseOrders {...props} />} />
             </Switch>
-          </Segment>
         </Container>
       </Container>
     )

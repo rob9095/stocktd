@@ -7,10 +7,15 @@ const purchaseOrderSchema = new mongoose.Schema({
   },
   type: {
     type: String,
+    required: true,
   },
   isComplete: {
     type: Boolean,
     default: false,
+  },
+  poRef: {
+    type: 'String',
+    required: true,
   },
   createdOn: {
     type: Date,
@@ -20,14 +25,13 @@ const purchaseOrderSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
   },
-  companyName: {
+  company: {
     type: String,
     required: true,
   },
   companyId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Company',
-    required: true,
   },
 })
 

@@ -15,12 +15,17 @@ const PoProductSchema = new mongoose.Schema({
   poSku: {
     type: String,
   },
+  companySku: {
+    type: String,
+    require: true,
+  },
   poProductId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
   },
   poProductQuantity: {
     type: Number,
+    required: true,
   },
   poProductScannedQuantity: {
     type: Number,

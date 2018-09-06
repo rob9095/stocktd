@@ -28,15 +28,15 @@ class InventoryProductTable extends Component {
     })
   }
 
-  handleRowCheck = ((e, id) => {
-    let selected = [...this.state.selected];
+  handleRowCheck = (e, id) => {
+    let selected = this.state.selected;
     if (this.state.selected.indexOf(id) != -1) {
       selected = this.state.selected.filter(s => s !== id)
     } else {
       selected.push(id)
     }
     this.setState({ selected });
-  })
+  }
 
   isSelected = id => this.state.selected.indexOf(id) != -1;
 
@@ -90,12 +90,12 @@ class InventoryProductTable extends Component {
               checked={isSelected}
             />
           </Table.Cell>
-          <Table.Cell>{p.sku}</Table.Cell>
+          <Table.Cell singleLine>{p.sku}</Table.Cell>
           <Table.Cell>{p.title}</Table.Cell>
-          <Table.Cell>{p.quantity}</Table.Cell>
-          <Table.Cell>{p.quantityToShip}</Table.Cell>
-          <Table.Cell>{p.price}</Table.Cell>
-          <Table.Cell>{p.weight}</Table.Cell>
+          <Table.Cell singleLine textAlign="center">{p.quantity}</Table.Cell>
+          <Table.Cell singleLine textAlign="center">{p.quantityToShip}</Table.Cell>
+          <Table.Cell singleLine textAlign="center">{p.price}</Table.Cell>
+          <Table.Cell singleLine textAlign="center">{p.weight}</Table.Cell>
           <Table.Cell>{p.brand}</Table.Cell>
           <Table.Cell>{p.supplier}</Table.Cell>
         </Table.Row>
@@ -106,7 +106,7 @@ class InventoryProductTable extends Component {
         <Table celled compact definition sortable>
           <Table.Header fullWidth>
             <Table.Row>
-              <Table.HeaderCell colSpan={9}>
+              <Table.HeaderCell colSpan={9} className="table-header no-select">
                 <Menu stackable secondary>
                   <Menu.Menu position='right'>
                     <Dropdown item text={`${rowsPerPage} rows/page`}>
@@ -145,9 +145,8 @@ class InventoryProductTable extends Component {
                 Quantity
               </Table.HeaderCell>
               <Table.HeaderCell
-
               >
-                Quantity to Ship
+                To Ship
               </Table.HeaderCell>
               <Table.HeaderCell
 
