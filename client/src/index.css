@@ -75,6 +75,14 @@ hr.large {
   margin-right: 0px !important;
 }
 
+.margin-sm {
+  margin: 10px;
+}
+
+.margin-mid {
+  margin: 30px;
+}
+
 /* Home Page Hero */
 
 .section.hero {
@@ -390,4 +398,11 @@ a.right.item.no-hover {
 th.table-header.no-select:hover {
   background: inherit !important;
   cursor: inherit !important;
+}
+
+.import-errors.message-box ul.list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

@@ -1,30 +1,94 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu } from 'semantic-ui-react';
+import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon } from 'semantic-ui-react';
 import { parseCSV } from '../services/parseCSV';
 import { importPurchaseOrder } from '../store/actions/purchaseOrders';
+import { addError, removeError } from '../store/actions/errors';
 
-const typeOptions = [{key: 'inbound',text: 'Inbound', value: 'inbound'},{key: 'outbound',text: 'Outbound', value: 'outbound'}]
+const poHeaders = [{value:'po name', required: true},{value:'po type', required: true},{value: 'sku', required: true},{value:'quantity', required: true},{value:'scan po'},{value:'price'},{value:'scanned quantity'}]
 
 class PurchaseOrders extends Component {
   constructor(props) {
     super(props)
     this.state = {
       activeFile: '',
+      json: [],
       update: true,
       showImport: false,
-      poType: '',
-      scanType: '',
-      activeDropdown: '',
-      checkboxValue: '',
+      showCompleteImportButton: false,
+      errorType: '',
+      errorHeader: '',
     }
   }
 
+  checkHeaders = (json) => {
+    let inputHeaders = Object.keys(json[0]).map(iH=>iH.toLowerCase()).filter(iH=> !iH.startsWith('field'))
+    let reqHeaders = poHeaders.filter(h => h.required === true)
+    let warnings = [];
+    reqHeaders.filter(rh => rh.required !== true)
+    for (let inputHeader of inputHeaders) {
+      if (!poHeaders.some(poH=>poH.value === inputHeader)) {
+        warnings.push(`Invalid Header: "${inputHeader}" will be ignored`)
+      }
+      poHeaders.forEach(h => {
+        if (h.required === true && h.value === inputHeader) {
+          reqHeaders = reqHeaders.filter(rh=>rh.value !== inputHeader)
+        }
+      })
+    }
+    if (reqHeaders.length > 0) {
+      console.log('the missing headers are')
+      console.log(reqHeaders)
+      let errorList = reqHeaders.map(h => (
+        `Missing Required Header: ${h.value}`
+      ))
+      this.setState({
+        showCompleteImportButton: false,
+        errorType: 'error',
+        errorHeader: 'Please fix the errors and upload the file again'
+      })
+      this.props.addError(errorList)
+      return false
+    }
+    if (warnings.length > 0) {
+      this.setState({
+        errorType: 'warning',
+        errorHeader: 'The following headers will be ignored',
+      })
+      this.props.addError(warnings)
+      console.log(warnings)
+      return true
+    }
+    return true
+  }
+
   handleFileUpload = async (e) => {
+    this.setState({
+      activeFile: e.target.files[0].name,
+    })
+    this.props.removeError();
     let json = await this.props.parseCSV(e)
-    console.log(json)
-    this.props.importPurchaseOrder(json, this.props.currentUser)
+    .then(json => {
+      console.log(json)
+      let headerCheck = this.checkHeaders(json)
+      if (headerCheck) {
+        this.setState({
+          showCompleteImportButton: true,
+          json,
+        })
+      }
+    })
+    .catch(err => {
+      this.setState({
+        errorType: 'error',
+        errorHeader: 'Please fix the errors and upload the file again',
+      })
+    })
+  }
+
+  handleCompleteImportClick = () => {
+    this.props.importPurchaseOrder(this.state.json, this.props.currentUser)
   }
 
   handleShowImport = () => {
@@ -36,13 +100,9 @@ class PurchaseOrders extends Component {
     })
   }
 
-  handleTypeSelect = (e, { name }) => this.setState({ poType: name })
-  handleScanSelect = (e, { name }) => this.setState({ scanType: name })
-
-
   render() {
-    const { showImport, activeFile, update, poType, scanType, checkboxValue } = this.state;
-    const { currentUser } = this.props
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton } = this.state;
+    const { currentUser, errors } = this.props
     return(
       <div>
         <Grid container columns={2} verticalAlign="middle" stackable>
@@ -50,88 +110,80 @@ class PurchaseOrders extends Component {
             <Header size='huge'>Purchase Orders</Header>
           </Grid.Column>
           <Grid.Column textAlign="right">
-            <Button content={showImport ? 'Cancel Import' : 'Import PO'} icon={showImport ? 'cancel' : 'add'} labelPosition='right' onClick={this.handleShowImport} />
+            <Button color={showImport ? 'red' : null} content={showImport ? 'Cancel Import' : 'Import PO'} icon={showImport ? 'cancel' : 'add'} labelPosition='right' onClick={this.handleShowImport} />
           </Grid.Column>
         </Grid>
         {showImport && (
-          <Segment raised>
-            <Grid container columns={1} verticalAlign="middle" centered stackable>
-              <Form style={{minWidth: '300px',padding: '30px 10px'}}>
-                <Header size='small'>Select a purchase order type</Header>
-                <Menu compact icon='labeled'>
-                  <Menu.Item
-                    name="inbound"
-                    active={poType === 'inbound'}
-                    onClick={this.handleTypeSelect}
+          <Grid textAlign="center" columns={1} verticalAlign="middle" stackable>
+            <Grid.Column>
+            <Segment raised>
+              <Grid container columns={1} verticalAlign="middle" centered stackable>
+                <Form style={{minWidth: '300px',padding: '30px 10px'}}>
+                  <Header size="medium">Import New Purchase Order</Header>
+                  {errors.message && (
+                    <Message
+                      error={errorType === 'error'}
+                      warning={errorType === 'warning'}
+                      header={errorHeader}
+                      list={errors.message}
+                      className="import-errors message-box"
+                      style={{display: 'block'}}
+                    />
+                  )}
+                  <Label
+                    as="label"
+                    style={{border: '0px'}}
+                    basic
+                    htmlFor="upload"
                   >
-                    Inbound
-                  </Menu.Item>
-                  <Menu.Item
-                    name="outbound"
-                    active={poType === 'outbound'}
-                    onClick={this.handleTypeSelect}
-                  >
-                    Outbound
-                  </Menu.Item>
-                </Menu>
-                {poType !== '' && (
-                  <div style={{marginTop: '30px'}}>
-                    <Header size='small'>Scan after import?</Header>
-                    <Menu compact icon='labeled'>
-                      <Menu.Item
-                        name="yesScan"
-                        active={scanType === 'yesScan'}
-                        onClick={this.handleScanSelect}
-                      >
-                        Yes, scan to complete
-                      </Menu.Item>
-                      <Menu.Item
-                        name="noScan"
-                        active={scanType === 'noScan'}
-                        onClick={this.handleScanSelect}
-                      >
-                        No, complete on import
-                      </Menu.Item>
-                    </Menu>
-                    {scanType !== '' &&(
-                      <div style={{marginTop: '30px'}}>
-                        <Header size='small'>Please choose a file to import</Header>
-                        <Label
-                          as="label"
-                          style={{border: '0px'}}
-                          basic
-                          htmlFor="upload"
-                        >
-                          <Button
-                            icon="upload"
-                            label={{
-                              basic: true,
-                              content: 'Select file'
-                            }}
-                            labelPosition="right"
-                            size="large"
-                          />
-                          <input
-                            hidden
-                            id="upload"
-                            type="file"
-                            onChange={(event)=> {
-                              this.handleFileUpload(event)
-                            }}
-                            onClick={(event)=> {
-                              event.target.value = null
-                            }}
-                          />
-                        </Label>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </Form>
-            </Grid>
-          </Segment>
+                    <Button
+                      icon="cloud upload"
+                      label={{
+                        basic: true,
+                        content: 'Select file to upload',
+                      }}
+                      labelPosition="right"
+                    />
+                    <input
+                      hidden
+                      id="upload"
+                      type="file"
+                      onChange={(event)=> {
+                        this.handleFileUpload(event)
+                      }}
+                      onClick={(event)=> {
+                        event.target.value = null
+                      }}
+                    />
+                  </Label>
+                  {activeFile && (
+                    <div style={{marginTop: '10px'}}>
+                      <Header size="tiny">File: {activeFile}</Header>
+                    </div>
+                  )}
+                  {showCompleteImportButton && (
+                    <div style={{padding: '10px'}}>
+                      <Button size="large" color="teal" content="Submit" onClick={this.handleCompleteImportClick} />
+                    </div>
+                  )}
+                </Form>
+              </Grid>
+            </Segment>
+          </Grid.Column>
+          </Grid>
         )}
-        <Segment raised>
+        <Segment raised className="po-item-container">
+          <div className="po-item">
+            <div className="po-details">
+              <Icon name="circle" color="green" />
+              <Header size="medium">First Purchase Order</Header>
+              <Header disabled size="small">9/6/2018</Header>
+              <Label color='yellow'>SCANNING</Label>
+            </div>
+            <div className="po-actions">
+
+            </div>
+          </div>
         </Segment>
       </div>
     )
@@ -145,4 +197,4 @@ class PurchaseOrders extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {parseCSV, importPurchaseOrder})(PurchaseOrders);
+ export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, addError, removeError})(PurchaseOrders);

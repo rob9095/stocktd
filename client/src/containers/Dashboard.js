@@ -83,9 +83,6 @@ class Dashboard extends Component {
                   <Dropdown.Item as={Link} to="/app/account/permissions" name="account" active={this.isMenuActive('permissions')}>Permissions</Dropdown.Item>
                 </Dropdown.Menu>
               </Dropdown>
-              <Menu.Item>
-                <Button color="teal">Sign Up</Button>
-              </Menu.Item>
             </Menu.Menu>
           </Menu>
             <Switch>

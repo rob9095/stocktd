@@ -21,14 +21,14 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
     let addedProducts = [];
     let poData = req.body.json.map((po,i)=>({
       ...po,
-      name: po['PO Name'],
-      type: po['PO Type'],
-      scanPO: po['Scan PO'] === 'no' ? true : false,
-      sku: po['SKU'],
-      quantity: po['Quantity'],
+      name: po['po name'],
+      type: po['po type'],
+      scanPO: po['scan po'] === 'no' ? true : false,
+      sku: po['sku'],
+      quantity: po['quantity'],
       company: req.body.company,
-      skuCompany: `${po['SKU']}-${req.body.company}`,
-      poRef: `${req.body.company}-${po['PO Name']}-${po['PO Type']}-${po['Scan PO']}`,
+      skuCompany: `${po['sku']}-${req.body.company}`,
+      poRef: `${req.body.company}-${po['po name']}-${po['po type']}-${po['scan po']}`,
     }))
     // group the po's by their unique ref, combined "-" seperate string of company name, po name, po type, and scan type
     let groupedPOs = groupBy(poData, 'poRef');

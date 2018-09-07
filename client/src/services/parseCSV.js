@@ -1,3 +1,4 @@
+import { addError } from '../store/actions/errors';
 const csvtojson=require("csvtojson");
 
 export const parseCSV = (event) => {
@@ -6,19 +7,21 @@ export const parseCSV = (event) => {
       // Check for File API support.
       if (!window.FileReader) {
         reject('file reader not supported in browser')
-        return
+        dispatch(addError(['File reader not supported in browser']))
       }
       if (!event.target.files[0].name.endsWith('.csv')) {
         reject('not a csv')
-        return
+        dispatch(addError(['The imported file was not a .csv']))
       }
       const reader = new FileReader();
       reader.readAsText(event.target.files[0]);
       reader.onload = async (e) => {
-        let json = await csvtojson().fromString(e.target.result);
+        let rawJson = await csvtojson().fromString(e.target.result)
+        let json = rawJson.map((po)=>(Object.keys(po).reduce((c, k) => (c[k.toLowerCase()] = po[k], c), {})))
         resolve(json)
       }
       reader.onerror = (err) => {
+        addError(err)
         reject(err)
       }
     })
