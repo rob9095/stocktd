@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon } from 'semantic-ui-react';
+import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition } from 'semantic-ui-react';
 import { parseCSV } from '../services/parseCSV';
 import { importPurchaseOrder } from '../store/actions/purchaseOrders';
 import { addError, removeError } from '../store/actions/errors';
@@ -19,6 +19,7 @@ class PurchaseOrders extends Component {
       showCompleteImportButton: false,
       errorType: '',
       errorHeader: '',
+      showActionsMenu: false,
     }
   }
 
@@ -100,8 +101,14 @@ class PurchaseOrders extends Component {
     })
   }
 
+  handlewActionsMenuToggle = () => {
+    this.setState({
+      showActionsMenu: !this.state.showActionsMenu,
+    })
+  }
+
   render() {
-    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton } = this.state;
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu } = this.state;
     const { currentUser, errors } = this.props
     return(
       <div>
@@ -175,13 +182,45 @@ class PurchaseOrders extends Component {
         <Segment raised className="po-item-container">
           <div className="po-item">
             <div className="po-details">
-              <Icon name="circle" color="green" />
-              <Header size="medium">First Purchase Order</Header>
-              <Header disabled size="small">9/6/2018</Header>
-              <Label color='yellow'>SCANNING</Label>
+              <div style={{marginTop: "-5px", marginRight: "5px"}}>
+                <Icon name="circle" color="teal" />
+              </div>
+              <div>
+                <Header size="medium" className="po-title">First Purchase Order</Header>
+                <Header disabled size="small" style={{margin: "10px 5px"}}>9/6/2018</Header>
+                <Label className="po-status" size="large" color='teal'>SCANNING</Label>
+                <Label className="po-type" size="large" color='olive'>OUTBOUND</Label>
+              </div>
             </div>
             <div className="po-actions">
-
+              <Transition visible={showActionsMenu} animation='fade left' duration={200}>
+                <div>
+                  <div className="actions-menu">
+                    <Label as="a" size="large" pointing='right'>Scan PO</Label>
+                    <Label as="a" size="large" pointing='right'>Mark Complete</Label>
+                    <Label as="a" size="large" pointing='right'>Delete PO</Label>
+                  </div>
+                </div>
+              </Transition>
+              <Transition animation='fade' duration={200}>
+                {showActionsMenu ?
+                  <Icon
+                    className="actions-menu-icon"
+                    onClick={this.handlewActionsMenuToggle}
+                    size="large"
+                    color="teal"
+                    name='close'
+                  />
+                  :
+                  <Icon
+                    className="actions-menu-icon"
+                    onClick={this.handlewActionsMenuToggle}
+                    size="large"
+                    color="teal"
+                    name='ellipsis vertical'
+                  />
+                }
+              </Transition>
             </div>
           </div>
         </Segment>

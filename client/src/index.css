@@ -406,3 +406,67 @@ th.table-header.no-select:hover {
   justify-content: center;
   align-items: center;
 }
+
+.po-item-container:hover {
+  box-shadow: 0 3px 5px 0 rgba(34,36,38,.12), 0 2px 10px 0 rgba(34,36,38,.15);
+  cursor: pointer;
+}
+
+.po-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px;
+}
+
+.po-item .po-details {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.po-item .po-details:hover {
+  cursor: text;
+}
+
+.po-item .po-details .po-title {
+  margin: 0px 5px;
+}
+
+.po-item .po-details .po-title:hover {
+  cursor: pointer;
+  opacity: .8;
+}
+
+.po-actions {
+    display: flex;
+    align-items: center;
+}
+
+.po-actions .actions-menu {
+  display: flex;
+  align-items: flex-end;
+  flex-direction: column;
+  max-height: 0px;
+  justify-content: center;
+}
+
+.po-actions .actions-menu a {
+  margin-top: 4px !important;
+}
+
+.po-actions i.actions-menu-icon {
+  padding: 20px;
+  height: 30px;
+  width: 30px;
+  border-radius: .28571429rem;
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.po-actions i.actions-menu-icon:hover {
+  background: rgba(0,0,0,.05);
+  cursor: pointer;
+  border-radius: .28571429rem;
+}
