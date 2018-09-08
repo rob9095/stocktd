@@ -23,14 +23,14 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
       ...po,
       name: po['po name'],
       type: po['po type'],
-      scanPO: po['scan po'] === 'no' ? true : false,
+      isComplete: po['po status'] === 'complete' || po['po status'] === undefined  ? true : false,
       sku: po['sku'],
       quantity: po['quantity'],
       company: req.body.company,
       skuCompany: `${po['sku']}-${req.body.company}`,
-      poRef: `${req.body.company}-${po['po name']}-${po['po type']}-${po['scan po']}`,
+      poRef: `${req.body.company}-${po['po name']}-${po['po type']}-${po['po status'] === 'complete' ? true : false}-${Date.now()}`,
     }))
-    // group the po's by their unique ref, combined "-" seperate string of company name, po name, po type, and scan type
+    // group the po's by their unique ref, combined "-" seperate string of company name, po name, po type, po status, current date obj
     let groupedPOs = groupBy(poData, 'poRef');
     // loop each po by it's unique ref to create it
     for (let ref of Object.keys(groupedPOs)) {
@@ -38,7 +38,7 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
       let mainPO = await db.PurchaseOrder.create({
         name: groupedPOs[ref][0].name,
         type: groupedPOs[ref][0].type,
-        isComplete: groupedPOs[ref][0].scanPO,
+        isComplete: groupedPOs[ref][0].isComplete,
         poRef: groupedPOs[ref][0].poRef,
         company: groupedPOs[ref][0].company,
       })

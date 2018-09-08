@@ -16,9 +16,10 @@ export const parseCSV = (event) => {
       const reader = new FileReader();
       reader.readAsText(event.target.files[0]);
       reader.onload = async (e) => {
-        let rawJson = await csvtojson().fromString(e.target.result)
-        let json = rawJson.map((po)=>(Object.keys(po).reduce((c, k) => (c[k.toLowerCase()] = po[k], c), {})))
-        resolve(json)
+        let raw = await csvtojson().fromString(e.target.result)
+        let json = raw.map((po)=>(Object.keys(po).reduce((c, k) => (c[k.toLowerCase()] = po[k], c), {})))
+        let jsonLowerCase = await csvtojson().fromString(e.target.result.toLowerCase())
+        resolve({json, jsonLowerCase})
       }
       reader.onerror = (err) => {
         addError(err)

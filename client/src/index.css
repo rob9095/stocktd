@@ -430,7 +430,7 @@ th.table-header.no-select:hover {
 }
 
 .po-item .po-details .po-title {
-  margin: 0px 5px;
+  margin: 15px 5px;
 }
 
 .po-item .po-details .po-title:hover {
@@ -449,10 +449,11 @@ th.table-header.no-select:hover {
   flex-direction: column;
   max-height: 0px;
   justify-content: center;
+  margin-right: 5px;
 }
 
-.po-actions .actions-menu a {
-  margin-top: 4px !important;
+.po-actions .actions-menu .segment {
+  padding: 5px;
 }
 
 .po-actions i.actions-menu-icon {
@@ -463,6 +464,7 @@ th.table-header.no-select:hover {
   display: flex !important;
   justify-content: center;
   align-items: center;
+  font-size: 18px;
 }
 
 .po-actions i.actions-menu-icon:hover {
