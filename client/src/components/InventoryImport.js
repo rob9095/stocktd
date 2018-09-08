@@ -18,8 +18,19 @@ class InventoryImport extends Component {
   }
 
   handleFileUpload = async (e) => {
-    let json = await this.props.parseCSV(e)
-    this.props.importProducts(json, this.props.currentUser, this.state.update)
+    this.props.parseCSV(e)
+    .then(({json, jsonLowerCase}) => {
+      this.props.importProducts(json, this.props.currentUser, true)
+      .then(res=>{
+        console.log(res)
+      })
+      .catch(err=>{
+        console.log(err)
+      })
+    })
+    .catch(err=>{
+      console.log(err)
+    })
   }
 
   render() {

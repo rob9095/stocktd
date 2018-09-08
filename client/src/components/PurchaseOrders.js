@@ -3,8 +3,10 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition } from 'semantic-ui-react';
 import { parseCSV } from '../services/parseCSV';
-import { importPurchaseOrder } from '../store/actions/purchaseOrders';
+import { importPurchaseOrder, fetchPurchaseOrders } from '../store/actions/purchaseOrders';
+import PurchaseOrderListItem from './PurchaseOrderListItem';
 import { addError, removeError } from '../store/actions/errors';
+
 const poHeaders = [{value:'po name', required: true},{value:'po type', required: true},{value: 'sku', required: true},{value:'quantity', required: true},{value:'po status'},{value:'price'},{value:'scanned quantity'}]
 let validPoStatus = ['processing','complete']
 let validPoType = ['inbound','outbound']
@@ -13,6 +15,8 @@ class PurchaseOrders extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      isLoading: true,
+      purchaseOrders: [],
       activeFile: '',
       json: [],
       update: true,
@@ -22,6 +26,21 @@ class PurchaseOrders extends Component {
       errorHeader: '',
       showActionsMenu: false,
     }
+  }
+
+  componentDidMount() {
+    this.props.fetchPurchaseOrders(this.props.currentUser)
+    .then(res=>{
+      this.setState({
+        isLoading: false,
+        purchaseOrders: res,
+      })
+    })
+    .catch(err=>{
+      this.setState({
+        isLoading: false,
+      })
+    })
   }
 
   checkRequiredInputs = (json) => {
@@ -46,6 +65,7 @@ class PurchaseOrders extends Component {
       errorType: 'error',
       errorHeader: 'Please fix the errors and upload the file again',
       showCompleteImportButton: false,
+      isLoading: false,
     })
     this.props.addError(errors)
     return false
@@ -77,6 +97,7 @@ class PurchaseOrders extends Component {
           errorType: 'error',
           errorHeader: 'Please fix the errors and upload the file again',
           showCompleteImportButton: false,
+          isLoading: false,
         })
         this.props.addError(errorList)
         reject(false)
@@ -86,6 +107,7 @@ class PurchaseOrders extends Component {
         this.setState({
           errorType: 'warning',
           errorHeader: 'The following headers will be ignored',
+          isLoading: false,
         })
         this.props.addError(warnings)
         console.log(warnings)
@@ -96,6 +118,7 @@ class PurchaseOrders extends Component {
         this.setState({
           errorType: 'warning',
           errorHeader: 'PO Status header missing',
+          isLoading: false,
         })
         this.props.addError(['PO will be marked as complete on import'])
       }
@@ -106,6 +129,7 @@ class PurchaseOrders extends Component {
   handleFileUpload = async (e) => {
     this.setState({
       activeFile: e.target.files[0].name,
+      isLoading: true,
     })
     this.props.removeError();
     this.props.parseCSV(e)
@@ -118,6 +142,7 @@ class PurchaseOrders extends Component {
           this.setState({
             showCompleteImportButton: true,
             json,
+            isLoading: false,
           })
         }
       })
@@ -126,12 +151,19 @@ class PurchaseOrders extends Component {
       this.setState({
         errorType: 'error',
         errorHeader: 'Please fix the errors and upload the file again',
+        isLoading: false,
       })
     })
   }
 
   handleCompleteImportClick = () => {
     this.props.importPurchaseOrder(this.state.json, this.props.currentUser)
+    .then(res=>{
+      this.setState({
+        isLoading: false,
+        purchaseOrders: [...this.state.purchaseOrders,...res.addedPOs],
+      })
+    })
   }
 
   handleShowImport = () => {
@@ -144,7 +176,7 @@ class PurchaseOrders extends Component {
     })
   }
 
-  handlewActionsMenuToggle = () => {
+  handlewActionsMenuToggle = (e) => {
     this.setState({
       showActionsMenu: !this.state.showActionsMenu,
     })
@@ -153,6 +185,32 @@ class PurchaseOrders extends Component {
   render() {
     const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu } = this.state;
     const { currentUser, errors } = this.props
+    if (this.state.isLoading) {
+      return(
+        <div>loading...</div>
+      )
+    }
+    let purchaseOrdersList = this.state.purchaseOrders.map((po)=>{
+      let status = po.isComplete === true ? 'Complete' : 'Processing'
+      let type = po.type === 'inbound' ? 'Inbound' : 'Outbound'
+      let statusColor = po.isComplete === true ? 'green' : 'teal'
+      let statusIcon = po.isComplete === true ? 'check' : 'sync'
+      let typeColor = po.type === 'inbound' ? 'orange' : 'yellow'
+      let typeIcon = po.type === 'inbound' ? 'warehouse' : 'dolly'
+      return(
+        <PurchaseOrderListItem
+          key={po._id}
+          name={po.name}
+          createdOn={po.createdOn}
+          type={type}
+          status={status}
+          statusColor={statusColor}
+          statusIcon={statusIcon}
+          typeColor={typeColor}
+          typeIcon={typeIcon}
+        />
+      )
+    })
     return(
       <div>
         <Grid container columns={2} verticalAlign="middle" stackable>
@@ -226,53 +284,7 @@ class PurchaseOrders extends Component {
             </Grid.Column>
           </Grid>
         </Transition>
-        <Segment raised className="po-item-container">
-          <div className="po-item">
-            <div className="po-details">
-              <div style={{marginTop: "-5px", marginRight: "5px"}}>
-                <Icon name="circle" color="teal" />
-              </div>
-              <div>
-                <Header as='h3' className="po-title">
-                    First Purchase Order
-                    <Header.Subheader>Created: September 6, 2018</Header.Subheader>
-                </Header>
-                <Label as="a" className="po-status" icon={{name: 'sync', color: 'teal'}} content="Processing" />
-                <Label as="a" className="po-type" icon={{name: 'warehouse', color: 'orange'}} content="Inbound" />
-              </div>
-            </div>
-            <div className="po-actions">
-              <Transition visible={showActionsMenu} animation='drop' duration={200}>
-                <div>
-                  <div className="actions-menu">
-                    <Segment raised>
-                      <Menu compact borderless secondary>
-                          <Menu.Item as='a'><Icon color="teal" name="search plus" /> Scan PO</Menu.Item>
-                          <Menu.Item as='a'><Icon color="green" name="check" /> Mark Complete</Menu.Item>
-                          <Menu.Item as='a'><Icon color="red" name="trash" />  Delete PO</Menu.Item>
-                      </Menu>
-                    </Segment>
-                  </div>
-                </div>
-              </Transition>
-              {showActionsMenu ?
-                <Icon
-                  className="actions-menu-icon"
-                  onClick={this.handlewActionsMenuToggle}
-                  color="grey"
-                  name='close'
-                />
-                :
-                <Icon
-                  className="actions-menu-icon"
-                  onClick={this.handlewActionsMenuToggle}
-                  color="grey"
-                  name='ellipsis vertical'
-                />
-              }
-            </div>
-          </div>
-        </Segment>
+        {purchaseOrdersList}
       </div>
     )
   }
@@ -285,4 +297,4 @@ class PurchaseOrders extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, addError, removeError})(PurchaseOrders);
+ export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, fetchPurchaseOrders, addError, removeError})(PurchaseOrders);

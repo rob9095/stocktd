@@ -88,8 +88,18 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
         addedProducts.push(updatedProducts)
       }
     }
-    return res.status(200).json({addedPOs, addedProducts})
+    let poProducts = await db.PoProduct.find({company: req.body.company})
+    return res.status(200).json({addedPOs, addedProducts, poProducts})
 	} catch(err) {
 		return next(err);
 	}
+}
+
+exports.getCompanyPurchaseOrders = async (req, res, next) => {
+  try {
+    let purchaseOrders = await db.PurchaseOrder.find({company: req.body.company})
+    return res.status(200).json(purchaseOrders)
+  } catch(err) {
+    return next(err)
+  }
 }

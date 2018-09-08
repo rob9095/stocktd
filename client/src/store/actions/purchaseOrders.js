@@ -15,3 +15,18 @@ export function importPurchaseOrder(json, currentUser){
 		});
 	}
 }
+
+export function fetchPurchaseOrders(currentUser){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/purchase-orders', {company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}

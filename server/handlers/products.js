@@ -3,23 +3,25 @@ const db = require('../models');
 exports.processProductImport = async (req, res, next) => {
 	try {
 		if(req.body.update) {
-			let products = req.body.products.map(p => ({
+			let updates = req.body.products.json.map(p => ({
 				updateOne: {
 					filter: { skuCompany: `${p.sku}-${req.body.company}`},
 					update: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
 					upsert: true,
 				}
 			}))
-			let updatedProducts = await db.Product.bulkWrite(products)
-			return res.status(200).json(updatedProducts)
+			let updatedProducts = await db.Product.bulkWrite(updates)
+			let products = await db.Product.find({company: req.body.company})
+			return res.status(200).json(updatedProducts, products)
 		} else {
-			let products = req.body.products.map(p => ({
+			let inserts = req.body.products.json.map(p => ({
 				insertOne: {
 					document: {...p, company: req.body.company, skuCompany: `${p.sku}-${req.body.company}`},
 				}
 			}))
-			let addedProducts = await db.Product.bulkWrite(products)
-			return res.status(200).json(addedProducts)
+			let addedProducts = await db.Product.bulkWrite(inserts)
+			let products = await db.Product.find({company: req.body.company})
+			return res.status(200).json(addedProducts, products)
 		}
 	} catch(err) {
 		if(err.code === 11000) {
