@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition } from 'semantic-ui-react';
+import { Checkbox, Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Rail } from 'semantic-ui-react';
+import PoProductTable from './PoProductTable';
 
 class PurchaseOrderListItem extends Component {
   constructor(props) {
@@ -11,23 +12,42 @@ class PurchaseOrderListItem extends Component {
       showActionsMenu: false,
       }
     }
-    handlewActionsMenuToggle = () => {
+    handlewActionsMenuToggle = (e) => {
+      e.stopPropagation();
       this.setState({
         showActionsMenu: !this.state.showActionsMenu,
       })
     }
+    handleHeaderClick = (e) => {
+      e.stopPropagation();
+      this.setState({
+        isOpen: !this.state.isOpen,
+      })
+    }
+
+    handleTableClick = (e) => {
+      e.stopPropagation();
+    }
+
+    handleListItemClick = () => {
+      this.props.handleRowCheck(this.props.id)
+    }
+
     render() {
-      let { showActionsMenu } = this.state;
-      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor } = this.props
+      let { showActionsMenu, isOpen } = this.state;
+      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor, isSelected } = this.props
       return(
-        <Segment key={id} raised className="po-item-container">
+        <Segment key={id} raised className="po-item-container" onClick={this.handleListItemClick}>
           <div className="po-item">
             <div className="po-details">
               <div style={{marginTop: "-5px", marginRight: "5px"}}>
+                <Transition visible={isSelected} animation='fade' duration={200}>
+                  <Label as='a' corner='left' icon='check' color="teal" />
+                </Transition>
                 <Icon name="circle" color={statusColor} />
               </div>
               <div>
-                <Header as='h3' className="po-title">
+                <Header as='h3' className="po-title" onClick={this.handleHeaderClick}>
                   {name}
                   <Header.Subheader>Created: {createdOn}</Header.Subheader>
                 </Header>
@@ -66,6 +86,15 @@ class PurchaseOrderListItem extends Component {
               }
             </div>
           </div>
+          <Transition visible={isOpen} animation='fade down' duration={200}>
+            <div onClick={this.handleTableClick}>
+              <PoProductTable
+                key={id}
+                id={id}
+                isComplete={this.props.isComplete}
+              />
+            </div>
+          </Transition>
         </Segment>
       )
     }

@@ -20,7 +20,6 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
     let addedPOs = [];
     let addedProducts = [];
     let poData = req.body.json.map((po,i)=>({
-      ...po,
       name: po['po name'],
       type: po['po type'],
       isComplete: po['po status'] === 'complete' || po['po status'] === undefined  ? true : false,
@@ -47,7 +46,7 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
       let poProducts = groupedPOs[ref].map(poLine => ({
 				updateOne: {
 					filter: { skuCompany: poLine.skuCompany, poRef: poLine.poRef},
-					update: {...poLine},
+					update: {...poLine, poId: mainPO._id},
 					upsert: true,
 				}
 			}))
@@ -91,7 +90,10 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
     let poProducts = await db.PoProduct.find({company: req.body.company})
     return res.status(200).json({addedPOs, addedProducts, poProducts})
 	} catch(err) {
-		return next(err);
+		return next({
+      err,
+      message: [...err.message],
+    });
 	}
 }
 
@@ -99,6 +101,16 @@ exports.getCompanyPurchaseOrders = async (req, res, next) => {
   try {
     let purchaseOrders = await db.PurchaseOrder.find({company: req.body.company})
     return res.status(200).json(purchaseOrders)
+  } catch(err) {
+    return next(err)
+  }
+}
+
+exports.getPoProducts = async (req, res, next) => {
+  try {
+    let products = await db.PoProduct.find({poId: req.body.po_id})
+    console.log(products)
+    return res.status(200).json({products})
   } catch(err) {
     return next(err)
   }

@@ -1,15 +1,18 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition } from 'semantic-ui-react';
-import { parseCSV } from '../services/parseCSV';
+import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox, Responsive } from 'semantic-ui-react';
+import { parseCSV, validatePOInputs, validatePOHeaders } from '../services/parseCSV';
 import { importPurchaseOrder, fetchPurchaseOrders } from '../store/actions/purchaseOrders';
 import PurchaseOrderListItem from './PurchaseOrderListItem';
 import { addError, removeError } from '../store/actions/errors';
 
 const poHeaders = [{value:'po name', required: true},{value:'po type', required: true},{value: 'sku', required: true},{value:'quantity', required: true},{value:'po status'},{value:'price'},{value:'scanned quantity'}]
-let validPoStatus = ['processing','complete']
-let validPoType = ['inbound','outbound']
+let validInputs = {
+  status: ['processing','complete'],
+  type: ['inbound','outbound'],
+  quantity: ['number'],
+}
 
 class PurchaseOrders extends Component {
   constructor(props) {
@@ -17,23 +20,34 @@ class PurchaseOrders extends Component {
     this.state = {
       isLoading: true,
       purchaseOrders: [],
+      filteredPurchaseOrders: [],
       activeFile: '',
       json: [],
+      selected: [],
+      selectAll: false,
       update: true,
       showImport: false,
       showCompleteImportButton: false,
       errorType: '',
       errorHeader: '',
       showActionsMenu: false,
+      submitLoading: false,
+      submitButtonText: 'Submit File',
+      showReSubmitHint: false,
+      showFilters: false,
+      labelFilter: '',
+      showBulkMenu: false,
     }
   }
 
   componentDidMount() {
+    this.props.removeError()
     this.props.fetchPurchaseOrders(this.props.currentUser)
     .then(res=>{
       this.setState({
         isLoading: false,
         purchaseOrders: res,
+        filteredPurchaseOrders: res,
       })
     })
     .catch(err=>{
@@ -43,163 +57,174 @@ class PurchaseOrders extends Component {
     })
   }
 
-  checkRequiredInputs = (json) => {
-    let errors = [];
-    json.forEach((poLine,i) => {
-      if (!validPoType.includes(poLine['po type'])) {
-        errors.push(`PO Type on line ${i+1} "${poLine['po type']}" is not valid`)
-      }
-      if (poLine['po status']) {
-        if (!validPoStatus.includes(poLine['po status'])) {
-          errors.push(`PO Status on line ${i+1} "${poLine['po status']}" is not valid`)
-        }
-      }
-      if (!Number.isInteger(parseInt(poLine['quantity']))) {
-        errors.push(`Quantity on line ${i+1} "${poLine['quantity']}" is not a valid number`)
-      }
-    })
-    if (errors.length === 0) {
-      return true;
-    }
-    this.setState({
-      errorType: 'error',
-      errorHeader: 'Please fix the errors and upload the file again',
-      showCompleteImportButton: false,
-      isLoading: false,
-    })
-    this.props.addError(errors)
-    return false
-  }
-
-  checkHeaders = (json) => {
-    return new Promise((resolve,reject) => {
-      let inputHeaders = Object.keys(json[0]).filter(iH=> !iH.startsWith('field'))
-      let reqHeaders = poHeaders.filter(h => h.required === true)
-      let warnings = [];
-      reqHeaders.filter(rh => rh.required !== true)
-      for (let inputHeader of inputHeaders) {
-        if (!poHeaders.some(poH=>poH.value === inputHeader)) {
-          warnings.push(`Invalid Header: "${inputHeader}" will be ignored`)
-        }
-        poHeaders.forEach(h => {
-          if (h.required === true && h.value === inputHeader) {
-            reqHeaders = reqHeaders.filter(rh=>rh.value !== inputHeader)
-          }
-        })
-      }
-      if (reqHeaders.length > 0) {
-        console.log('the missing headers are')
-        console.log(reqHeaders)
-        let errorList = reqHeaders.map(h => (
-          `Missing Required Header: ${h.value}`
-        ))
-        this.setState({
-          errorType: 'error',
-          errorHeader: 'Please fix the errors and upload the file again',
-          showCompleteImportButton: false,
-          isLoading: false,
-        })
-        this.props.addError(errorList)
-        reject(false)
-        return
-      }
-      if (warnings.length > 0) {
-        this.setState({
-          errorType: 'warning',
-          errorHeader: 'The following headers will be ignored',
-          isLoading: false,
-        })
-        this.props.addError(warnings)
-        console.log(warnings)
-        resolve(true)
-        return
-      }
-      if (!inputHeaders.includes('po status')){
-        this.setState({
-          errorType: 'warning',
-          errorHeader: 'PO Status header missing',
-          isLoading: false,
-        })
-        this.props.addError(['PO will be marked as complete on import'])
-      }
-      resolve(true)
-    })
-  }
-
   handleFileUpload = async (e) => {
     this.setState({
       activeFile: e.target.files[0].name,
-      isLoading: true,
+      showReSubmitHint: false,
     })
     this.props.removeError();
     this.props.parseCSV(e)
-    .then(({json, jsonLowerCase}) => {
+    .then(async ({json, jsonLowerCase}) => {
       console.log(jsonLowerCase)
-      this.checkHeaders(jsonLowerCase)
-      .then(()=>{
-        let inputCheck = this.checkRequiredInputs(jsonLowerCase)
-        if (inputCheck) {
-          this.setState({
-            showCompleteImportButton: true,
-            json,
-            isLoading: false,
-          })
-        }
-      })
+      let headerCheck = await this.props.validatePOHeaders(jsonLowerCase, poHeaders)
+      if (headerCheck.errorType === 'warning') {
+        //display warnings
+        this.props.addError(headerCheck.errorList)
+        this.setState({
+          errorType: headerCheck.errorType,
+          errorHeader: headerCheck.errorHeader,
+          submitButtonText: 'Submit File with Warnings',
+        })
+      }
+      let inputCheck = await this.props.validatePOInputs(jsonLowerCase, validInputs)
+      if (inputCheck.isValid) {
+        this.setState({
+          showCompleteImportButton: true,
+          json,
+          submitButtonText: 'Submit File',
+        })
+      }
     })
     .catch(err => {
+      this.props.addError(err.errorList)
       this.setState({
-        errorType: 'error',
-        errorHeader: 'Please fix the errors and upload the file again',
-        isLoading: false,
+        errorType: err.errorType,
+        errorHeader: err.errorHeader,
+        showCompleteImportButton: false,
       })
     })
   }
 
   handleCompleteImportClick = () => {
+    if (this.state.submitButtonText.startsWith('Import')) {
+      this.handleSubmitHintToggle()
+      return
+    }
+    this.setState({
+      submitLoading: true,
+    })
     this.props.importPurchaseOrder(this.state.json, this.props.currentUser)
     .then(res=>{
       this.setState({
-        isLoading: false,
+        submitLoading: false,
         purchaseOrders: [...this.state.purchaseOrders,...res.addedPOs],
+        submitButtonText: 'Import Success'
+      })
+    })
+    .catch(err=>{
+      this.setState({
+        submitLoading: false,
+        submitButtonText: 'Import Failed',
       })
     })
   }
 
   handleShowImport = () => {
+    this.props.removeError()
     this.setState({
       showImport: !this.state.showImport,
       showCompleteImportButton: false,
       activeFile: this.state.showImport ? '' : this.state.activeFile,
-      poType: this.state.poType !== '' ? '' : this.state.poType,
-      scanType: this.state.scanType !== '' ? '' : this.state.scanType,
     })
   }
 
-  handlewActionsMenuToggle = (e) => {
+  handleToggleFilters = () => {
+    this.props.removeError()
     this.setState({
-      showActionsMenu: !this.state.showActionsMenu,
+      showFilters: !this.state.showFilters,
+    })
+  }
+
+  handleSubmitHintToggle = () => {
+    this.setState({
+      showReSubmitHint: !this.state.showReSubmitHint,
+    })
+  }
+
+  handleRowCheck = (id) => {
+    this.updateArraySelection(id,'selected')
+  }
+
+  isSelected = val => this.state.selected.indexOf(val) != -1;
+
+  handleSelectAllClick = () => {
+    if (!this.state.selectAll) {
+      this.setState({ selected: this.state.filteredPurchaseOrders.map(po => po._id), selectAll: true, });
+      return
+    }
+    this.setState({ selected: [], selectAll: false, });
+  };
+
+  updateArraySelection = (value,arrName) => {
+    let selected = this.state[arrName];
+    if (this.state[arrName].indexOf(value) !== -1) {
+      selected = this.state[arrName].filter(s => s !== value)
+    } else {
+      selected.push(value)
+    }
+    this.setState({ [arrName]: selected });
+    return selected;
+  }
+
+  handleLabelToggle = (e) => {
+    const labels = ['po-type','po-status']
+    const classes = e.target.classList;
+    let labelFilter = '';
+    let i = 0;
+    for (let c of classes) {
+      if (labels.includes(c)) {
+        labelFilter = `${c}-${classes[i+1]}`
+      }
+      i++
+    }
+    let filteredPurchaseOrders = this.state.purchaseOrders.filter(po=>{
+      let status = po.isComplete === true ? 'complete' : 'processing'
+      if (labelFilter === `po-type-${po.type}` || labelFilter === `po-status-${status}`) {
+        return {...po}
+      }
+    })
+    this.setState({
+      filteredPurchaseOrders,
+      labelFilter,
+    })
+    console.log(labelFilter)
+  }
+
+  handleClearLabelFilter = () => {
+    this.setState({
+      labelFilter: '',
+      filteredPurchaseOrders: this.state.purchaseOrders,
+    })
+  }
+
+  handleBulkMenuToggle = (e) => {
+    this.setState({
+      showBulkMenu: !this.state.showBulkMenu,
     })
   }
 
   render() {
-    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu } = this.state;
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu } = this.state;
     const { currentUser, errors } = this.props
     if (this.state.isLoading) {
       return(
         <div>loading...</div>
       )
     }
-    let purchaseOrdersList = this.state.purchaseOrders.map((po)=>{
+    let purchaseOrdersList = this.state.filteredPurchaseOrders.map((po)=>{
       let status = po.isComplete === true ? 'Complete' : 'Processing'
       let type = po.type === 'inbound' ? 'Inbound' : 'Outbound'
       let statusColor = po.isComplete === true ? 'green' : 'teal'
       let statusIcon = po.isComplete === true ? 'check' : 'sync'
       let typeColor = po.type === 'inbound' ? 'orange' : 'yellow'
       let typeIcon = po.type === 'inbound' ? 'warehouse' : 'dolly'
+      let isSelected = this.isSelected(po._id);
       return(
         <PurchaseOrderListItem
           key={po._id}
+          id={po._id}
+          isSelected={isSelected}
+          isComplete={po.isComplete}
           name={po.name}
           createdOn={po.createdOn}
           type={type}
@@ -208,79 +233,178 @@ class PurchaseOrders extends Component {
           statusIcon={statusIcon}
           typeColor={typeColor}
           typeIcon={typeIcon}
+          handleRowCheck={this.handleRowCheck}
         />
       )
     })
     return(
       <div>
-        <Grid container columns={2} verticalAlign="middle" stackable>
+        <Grid container columns={2} verticalAlign="middle">
           <Grid.Column>
             <Header size='huge'>Purchase Orders</Header>
           </Grid.Column>
           <Grid.Column textAlign="right">
-            <Button color={showImport ? 'red' : null} content={showImport ? 'Cancel Import' : 'Import PO'} icon={showImport ? 'cancel' : 'add'} labelPosition='right' onClick={this.handleShowImport} />
+          </Grid.Column>
+        </Grid>
+        <Grid columns={2} verticalAlign="middle">
+          <Grid.Column>
+            <Label
+              as="a"
+              className={
+                labelFilter.length > 0 && !labelFilter.includes('po-type-outbound') ?
+                'po-type outbound disabled'
+                :
+                'po-type outbound'
+              }
+              icon={{name: 'dolly', color: 'yellow'}}
+              content="Outbound"
+              onClick={this.handleLabelToggle}
+            />
+            <Label
+              as="a"
+              className={
+                labelFilter.length > 0 && !labelFilter.includes('po-type-inbound') ?
+                'po-type inbound disabled'
+                :
+                'po-type inbound'
+              }
+              icon={{name: 'warehouse', color: 'orange'}}
+              content="Inbound" onClick={this.handleLabelToggle}
+            />
+            <Label
+              as="a"
+              className={
+                labelFilter.length > 0 && !labelFilter.includes('po-status-complete')?
+                'po-status complete disabled'
+                :
+                'po-status complete'
+              }
+              icon={{name: 'check', color: 'green'}}
+              content="Complete" onClick={this.handleLabelToggle}
+            />
+            <Label
+              as="a"
+              className={
+                labelFilter.length > 0 && !labelFilter.includes('po-status-processing')
+                 ?
+                'po-status processing disabled'
+                :
+                'po-status processing'
+              }
+              icon={{name: 'sync', color: 'teal'}}
+              content="Processing"
+              onClick={this.handleLabelToggle}
+            />
+            {labelFilter !== '' && (
+              <Icon name="close" color="grey" className="clear-filter-icon" onClick={this.handleClearLabelFilter} />
+            )}
+          </Grid.Column>
+          <Grid.Column textAlign="right">
+            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content={showBulkMenu ? 'Hide Bulk' : 'Bulk'} onClick={this.handleBulkMenuToggle} />
+            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? null : 'brown'}} color={showFilters ? 'red' : null} content={showFilters ? 'Hide Filters' : 'Filter'} onClick={this.handleToggleFilters} />
+            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? null : 'olive'}} color={showImport ? 'red' : null} content={showImport ? 'Cancel Import' : 'Import'} onClick={this.handleShowImport} />
           </Grid.Column>
         </Grid>
         <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
-          <Grid textAlign="center" columns={1} verticalAlign="middle" stackable>
+          <Grid textAlign="center" columns={1} verticalAlign="middle">
             <Grid.Column>
-              <Segment raised>
-                <Grid container columns={1} verticalAlign="middle" centered stackable>
-                  <Form style={{minWidth: '300px',padding: '30px 10px'}}>
-                    <Header size="medium">Import New Purchase Order</Header>
-                    {errors.message && (
-                      <Message
-                        error={errorType === 'error'}
-                        warning={errorType === 'warning'}
-                        header={errorHeader}
-                        list={errors.message}
-                        className="import-errors message-box"
-                        style={{display: 'block'}}
-                      />
-                    )}
-                    <Label
-                      as="label"
-                      style={{border: '0px'}}
-                      basic
-                      htmlFor="upload"
-                    >
-                      <Button
-                        icon="cloud upload"
-                        label={{
-                          basic: true,
-                          content: 'Select file to upload',
-                        }}
-                        labelPosition="right"
-                      />
-                      <input
-                        hidden
-                        id="upload"
-                        type="file"
-                        onChange={(event)=> {
-                          this.handleFileUpload(event)
-                        }}
-                        onClick={(event)=> {
-                          event.target.value = null
-                        }}
-                      />
-                    </Label>
-                    {activeFile && (
-                      <div style={{marginTop: '10px'}}>
-                        <Header size="tiny">File: {activeFile}</Header>
-                      </div>
-                    )}
-                    <Transition visible={showCompleteImportButton} animation='fade down' duration={200} unmountOnHide transitionOnMount>
-                      <div style={{padding: '10px'}}>
-                        {errors.message ?
-                        <Button size="large" color="teal" content="Submit File with Warnings" onClick={this.handleCompleteImportClick} />
-                          :
-                        <Button size="large" color="teal" content="Submit File" onClick={this.handleCompleteImportClick} />
-                        }
-                      </div>
-                    </Transition>
+              <Grid container columns={1} verticalAlign="middle" centered>
+                <Form style={{padding: '30px 10px'}}>
+                  <Header size="medium">Import New Purchase Order</Header>
+                  {errors.message && (
+                    <Message
+                      error={errorType === 'error'}
+                      warning={errorType === 'warning'}
+                      header={errorHeader}
+                      list={errors.message}
+                      className="import-errors message-box"
+                      style={{display: 'block'}}
+                    />
+                  )}
+                  <Label
+                    as="label"
+                    style={{border: '0px'}}
+                    basic
+                    htmlFor="upload"
+                    size="huge"
+                  >
+                    <Button
+                      icon="cloud upload"
+                      label={{
+                        basic: true,
+                        content: 'Select file to upload',
+                        size: "huge"
+                      }}
+                      labelPosition="right"
+                      size="huge"
+                    />
+                    <input
+                      hidden
+                      id="upload"
+                      type="file"
+                      onChange={(event)=> {
+                        this.handleFileUpload(event)
+                      }}
+                      onClick={(event)=> {
+                        event.target.value = null
+                      }}
+                    />
+                  </Label>
+                  {activeFile && (
+                    <div style={{marginTop: '10px'}}>
+                      <Header size="tiny">File: {activeFile}</Header>
+                    </div>
+                  )}
+                    <div className="submit-button-container">
+                      {this.state.showReSubmitHint && (
+                        <Label pointing='below'>
+                          Please submit another file
+                          <Icon onClick={this.handleSubmitHintToggle} name='delete'/>
+                        </Label>
+                      )}
+                      <Transition visible={showCompleteImportButton} animation='fade down' duration={200} unmountOnHide transitionOnMount>
+                        <div>
+                          <Button
+                            size="huge"
+                            color="teal"
+                            content={submitButtonText}
+                            positive={submitButtonText === 'Import Success'}
+                            negative={submitButtonText === 'Import Failed'}
+                            icon={submitButtonText === 'Import Success' ? 'check' : submitButtonText === 'Import Failed' ? 'delete' : null}
+                            loading={this.state.submitLoading}
+                            onClick={this.handleCompleteImportClick}
+                          />
+                        </div>
+                      </Transition>
+                    </div>
+                </Form>
+              </Grid>
+            </Grid.Column>
+          </Grid>
+        </Transition>
+        <Transition visible={showBulkMenu} animation='fade' duration={200} unmountOnHide transitionOnMount>
+          <Grid textAlign="center" columns={1} verticalAlign="middle">
+            <Grid.Column>
+              <Button content="Select All" onClick={this.handleSelectAllClick} />
+            </Grid.Column>
+          </Grid>
+        </Transition>
+        <Transition visible={showFilters} animation='fade' duration={200} unmountOnHide transitionOnMount>
+          <Grid textAlign="center" columns={1} verticalAlign="middle" >
+            <Grid.Column>
+                <Grid container columns={1} verticalAlign="middle" centered>
+                  <Form>
+                    <Header size="medium">Filters</Header>
+                    <Form.Group widths="equal" className="po-filter-form">
+                      <Form.Field label="SKU" icon='search' placeholder="SKU" className='stps-input label-left' control={Input} fluid />
+                      <Form.Field label="PO Name" icon='search' placeholder="PO Name" className='stps-input label-left' control={Input} fluid />
+                      <Form.Field label="PO Status" icon='search' placeholder="PO Status" className='stps-input label-left' control={Input} fluid />
+                      <Form.Field label="PO Type" icon='search' placeholder="PO Type" className='stps-input label-left' control={Input} fluid />
+                      <Form.Field label="Date Created From" icon='search' placeholder='Date Created label-left' control={Input} className='stps-input label-left' type="date" fluid />
+                      <Form.Field label="to" icon='search' placeholder='Date Created label-left' control={Input} className='stps-input label-left' type="date" fluid />
+                    </Form.Group>
                   </Form>
                 </Grid>
-              </Segment>
             </Grid.Column>
           </Grid>
         </Transition>
@@ -297,4 +421,4 @@ class PurchaseOrders extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, fetchPurchaseOrders, addError, removeError})(PurchaseOrders);
+ export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, validatePOInputs, validatePOHeaders, fetchPurchaseOrders, addError, removeError})(PurchaseOrders);

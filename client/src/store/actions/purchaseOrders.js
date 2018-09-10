@@ -30,3 +30,18 @@ export function fetchPurchaseOrders(currentUser){
 		});
 	}
 }
+
+export function fetchPoProducts(po_id, currentUser){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/purchase-orders/products', {po_id, company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}

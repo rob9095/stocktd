@@ -12,7 +12,7 @@ const PoProductSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  poSku: {
+  sku: {
     type: String,
   },
   companySku: {
@@ -23,11 +23,11 @@ const PoProductSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Product',
   },
-  poProductQuantity: {
+  quantity: {
     type: Number,
     required: true,
   },
-  poProductScannedQuantity: {
+  scannedQuantity: {
     type: Number,
     default: 0,
   },

@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const { processPurchaseOrderImport, getCompanyPurchaseOrders } = require('../handlers/purchaseOrders');
+const { processPurchaseOrderImport, getCompanyPurchaseOrders, getPoProducts } = require('../handlers/purchaseOrders');
 
-router.post('/import-csv', processPurchaseOrderImport);
 router.post('/', getCompanyPurchaseOrders);
+router.post('/import-csv', processPurchaseOrderImport);
+router.post('/products', getPoProducts);
 
 module.exports = router;

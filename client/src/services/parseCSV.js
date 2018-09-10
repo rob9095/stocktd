@@ -1,6 +1,90 @@
 import { addError } from '../store/actions/errors';
 const csvtojson=require("csvtojson");
 
+export const validatePOInputs = (json, validInputs) => {
+  let errorList = [];
+  return dispatch => {
+    return new Promise((resolve,reject) => {
+      json.forEach((poLine,i) => {
+        if (!validInputs.type.includes(poLine['po type'])) {
+          errorList.push(`PO Type on line ${i+1} "${poLine['po type']}" is not valid`)
+        }
+        if (poLine['po status']) {
+          if (!validInputs.status.includes(poLine['po status'])) {
+            errorList.push(`PO Status on line ${i+1} "${poLine['po status']}" is not valid`)
+          }
+        }
+        if (validInputs.quantity.includes('number')) {
+          if (!Number.isInteger(parseInt(poLine['quantity']))) {
+            errorList.push(`Quantity on line ${i+1} "${poLine['quantity']}" is not a valid number`)
+          }
+        }
+      })
+      if (errorList.length === 0) {
+        resolve({
+          isValid: true,
+        })
+        return
+      }
+      reject({
+        errorType: 'error',
+        errorHeader: 'Please fix the errors and upload the file again',
+        errorList,
+      })
+    })
+  }
+}
+
+export const validatePOHeaders = (json, poHeaders) => {
+  return dispatch => {
+    return new Promise((resolve,reject) => {
+      let inputHeaders = Object.keys(json[0]).filter(iH=> !iH.startsWith('field'))
+      let reqHeaders = poHeaders.filter(h => h.required === true)
+      let warnings = [];
+      reqHeaders.filter(rh => rh.required !== true)
+      for (let inputHeader of inputHeaders) {
+        if (!poHeaders.some(poH=>poH.value === inputHeader)) {
+          warnings.push(`Invalid Header: "${inputHeader}" will be ignored`)
+        }
+        poHeaders.forEach(h => {
+          if (h.required === true && h.value === inputHeader) {
+            reqHeaders = reqHeaders.filter(rh=>rh.value !== inputHeader)
+          }
+        })
+      }
+      if (reqHeaders.length > 0) {
+        console.log('the missing headers are')
+        console.log(reqHeaders)
+        let errorList = reqHeaders.map(h => (
+          `Missing Required Header: ${h.value}`
+        ))
+        reject({
+          errorType: 'error',
+          errorHeader: 'Please fix the errors and upload the file again',
+          errorList,
+        })
+        return
+      }
+      if (!inputHeaders.includes('po status')){
+        warnings.push('Missing Header: "po status"','PO will be marked complete on import')
+      }
+      if (warnings.length > 0) {
+        console.log('the warnings are')
+        console.log(warnings)
+        resolve({
+          errorType: 'warning',
+          errorHeader: 'The following headers will be ignored',
+          errorList: warnings,
+        })
+        return
+      }
+      resolve({
+        isValid: true,
+      })
+    })
+  }
+}
+
 export const parseCSV = (event) => {
   return dispatch => {
     return new Promise((resolve,reject) => {

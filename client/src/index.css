@@ -343,6 +343,10 @@ a.right.item.no-hover {
     width: inherit !important;
 }
 
+.stps-input.label-left label {
+  text-align: left;
+}
+
 /* Selects */
 .stps-select div.dropdown {
   box-shadow: 0 0px 0px 0 rgba(34,36,38,.12), 0 1px 5px 0 rgba(34,36,38,.15) !important;
@@ -401,6 +405,14 @@ th.table-header.no-select:hover {
 }
 
 .import-errors.message-box ul.list {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.submit-button-container {
+  padding: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -471,4 +483,27 @@ th.table-header.no-select:hover {
   background: rgba(0,0,0,.05);
   cursor: pointer;
   border-radius: .28571429rem;
+}
+.po-filter-form {
+  padding: 20px 0px;
+}
+
+.stps-input i[class="search icon"]:hover {
+  cursor: pointer !important;
+  pointer-events: inherit;
+}
+
+@media screen and (max-width: 990px) {
+  .po-filter-form {
+    flex-wrap: wrap;
+  }
+}
+
+i.clear-filter-icon {
+  opacity: .8;
+}
+
+i.clear-filter-icon:hover {
+  opacity: .7;
+  cursor: pointer; 
 }
