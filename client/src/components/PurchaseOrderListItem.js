@@ -35,7 +35,7 @@ class PurchaseOrderListItem extends Component {
 
     render() {
       let { showActionsMenu, isOpen } = this.state;
-      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor, isSelected } = this.props
+      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor, isSelected } = this.props;
       return(
         <Segment key={id} raised className="po-item-container" onClick={this.handleListItemClick}>
           <div className="po-item">
@@ -60,7 +60,7 @@ class PurchaseOrderListItem extends Component {
                 <div>
                   <div className="actions-menu">
                     <Segment raised>
-                      <Menu compact borderless secondary>
+                      <Menu stackable compact borderless secondary>
                           <Menu.Item as='a'><Icon color="teal" name="search plus" /> Scan PO</Menu.Item>
                           <Menu.Item as='a'><Icon color="green" name="check" /> Mark Complete</Menu.Item>
                           <Menu.Item as='a'><Icon color="red" name="trash" />  Delete PO</Menu.Item>

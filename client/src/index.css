@@ -371,10 +371,14 @@ a.right.item.no-hover {
   padding-right: 20px !important;
   border-left: 2px solid #eee;
 }
-.ui.dropdown>.dropdown.icon:before {
+.stps-select .ui.dropdown>.dropdown.icon:before {
   content: '\f078' !important;
   font-family: 'Icons';
   color: #3fd1c4;
+}
+
+.stps-select.compact i {
+  top: 0.4485714em !important;
 }
 
 .ui.selection.dropdown:focus .menu {
@@ -383,6 +387,23 @@ a.right.item.no-hover {
   border-left: 1px solid #3fd1c4 !important;
   border-right: 1px solid #3fd1c4 !important;
   border-top: 0px solid #fff;
+}
+
+.stps-select.label-left label {
+  text-align: left;
+}
+
+.stps-select.compact .selection.dropdown {
+  padding: 1.1em !important;
+  min-width: 151px;
+}
+
+.stps-select .ui.selection.dropdown:hover {
+    border-color: rgba(34,36,38,.15);
+}
+
+.stps-select .ui.selection.dropdown:focus {
+    border-color: #3fd1c4;
 }
 
 /* Dashboard/App */
@@ -417,6 +438,12 @@ th.table-header.no-select:hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+
+@media screen and (max-width: 770px) {
+  .po-dash .header.col {
+    text-align: center !important;
+  }
 }
 
 .po-item-container:hover {
@@ -485,7 +512,15 @@ th.table-header.no-select:hover {
   border-radius: .28571429rem;
 }
 .po-filter-form {
-  padding: 20px 0px;
+  padding: 10px;
+  margin: 0px !important;
+}
+
+.filter-submit {
+  padding: 10px;
+  margin-bottom: 10px !important;
+  display: flex;
+  justify-content: center;
 }
 
 .stps-input i[class="search icon"]:hover {
@@ -493,7 +528,7 @@ th.table-header.no-select:hover {
   pointer-events: inherit;
 }
 
-@media screen and (max-width: 990px) {
+@media screen and (max-width: 1200px) {
   .po-filter-form {
     flex-wrap: wrap;
   }
@@ -505,5 +540,12 @@ i.clear-filter-icon {
 
 i.clear-filter-icon:hover {
   opacity: .7;
-  cursor: pointer; 
+  cursor: pointer;
+}
+
+.no-results-container {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 20px;
 }

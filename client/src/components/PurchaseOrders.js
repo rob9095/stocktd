@@ -5,10 +5,12 @@ import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, I
 import { parseCSV, validatePOInputs, validatePOHeaders } from '../services/parseCSV';
 import { importPurchaseOrder, fetchPurchaseOrders } from '../store/actions/purchaseOrders';
 import PurchaseOrderListItem from './PurchaseOrderListItem';
+import PurchaseOrderFilterForm from './PurchaseOrderFilterForm';
+import NoResultsMessage from './NoResultsMessage';
 import { addError, removeError } from '../store/actions/errors';
 
 const poHeaders = [{value:'po name', required: true},{value:'po type', required: true},{value: 'sku', required: true},{value:'quantity', required: true},{value:'po status'},{value:'price'},{value:'scanned quantity'}]
-let validInputs = {
+const validInputs = {
   status: ['processing','complete'],
   type: ['inbound','outbound'],
   quantity: ['number'],
@@ -44,10 +46,18 @@ class PurchaseOrders extends Component {
     this.props.removeError()
     this.props.fetchPurchaseOrders(this.props.currentUser)
     .then(res=>{
+      let purchaseOrders = res.map(po=>{
+        let status = po.isComplete === true ? 'complete' : 'processing'
+        // todo add po skus to po
+        return {
+          ...po,
+          status,
+        }
+      })
       this.setState({
         isLoading: false,
-        purchaseOrders: res,
-        filteredPurchaseOrders: res,
+        purchaseOrders,
+        filteredPurchaseOrders: purchaseOrders,
       })
     })
     .catch(err=>{
@@ -108,6 +118,7 @@ class PurchaseOrders extends Component {
       this.setState({
         submitLoading: false,
         purchaseOrders: [...this.state.purchaseOrders,...res.addedPOs],
+        filteredPurchaseOrders: [...this.state.filteredPurchaseOrders,...res.addedPOs],
         submitButtonText: 'Import Success'
       })
     })
@@ -166,28 +177,37 @@ class PurchaseOrders extends Component {
     return selected;
   }
 
-  handleLabelToggle = (e) => {
-    const labels = ['po-type','po-status']
-    const classes = e.target.classList;
-    let labelFilter = '';
-    let i = 0;
-    for (let c of classes) {
-      if (labels.includes(c)) {
-        labelFilter = `${c}-${classes[i+1]}`
-      }
-      i++
-    }
-    let filteredPurchaseOrders = this.state.purchaseOrders.filter(po=>{
-      let status = po.isComplete === true ? 'complete' : 'processing'
-      if (labelFilter === `po-type-${po.type}` || labelFilter === `po-status-${status}`) {
-        return {...po}
-      }
-    })
+  handleLabelToggle = (e,clicked) => {
+    let pos = clicked.name === 'status' ?
+      this.state.purchaseOrders.filter(po=>po.status === clicked.value)
+      :
+      this.state.purchaseOrders.filter(po=>po.type === clicked.value)
     this.setState({
-      filteredPurchaseOrders,
-      labelFilter,
+      filteredPurchaseOrders: pos,
+      labelFilter: clicked.value,
     })
-    console.log(labelFilter)
+    // old code is ugly!
+    // const labels = ['po-type','po-status']
+    // const classes = e.target.classList;
+    // let labelFilter = '';
+    // let i = 0;
+    // for (let c of classes) {
+    //   if (labels.includes(c)) {
+    //     labelFilter = `${c}-${classes[i+1]}`
+    //   }
+    //   i++
+    // }
+    // let filteredPurchaseOrders = this.state.purchaseOrders.filter(po=>{
+    //   let status = po.isComplete === true ? 'complete' : 'processing'
+    //   if (labelFilter === `po-type-${po.type}` || labelFilter === `po-status-${status}`) {
+    //     return {...po}
+    //   }
+    // })
+    // this.setState({
+    //   filteredPurchaseOrders,
+    //   labelFilter,
+    // })
+    // console.log(labelFilter)
   }
 
   handleClearLabelFilter = () => {
@@ -203,8 +223,28 @@ class PurchaseOrders extends Component {
     })
   }
 
+  handleFilterSearch = (query,dates) => {
+    this.setState({
+      labelFilter: '',
+    })
+    let results = [];
+    let pos = this.state.purchaseOrders
+    if (dates.length === 1) {
+      console.log(dates[0][1])
+      pos = pos.filter(po=>po.createdOn >= dates[0][1])
+    } else if (dates.length === 2){
+      pos = pos.filter(po=>po.createdOn >= dates[0][1] && po.createdOn <= dates[0][1])
+    }
+    for (let val of query) {
+      pos = pos.filter(po=>po[val[0]].toLowerCase().includes(val[1]) === true)
+    }
+    this.setState({
+      filteredPurchaseOrders: pos,
+    })
+  }
+
   render() {
-    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu } = this.state;
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll } = this.state;
     const { currentUser, errors } = this.props
     if (this.state.isLoading) {
       return(
@@ -238,7 +278,7 @@ class PurchaseOrders extends Component {
       )
     })
     return(
-      <div>
+      <div className="po-dash">
         <Grid container columns={2} verticalAlign="middle">
           <Grid.Column>
             <Header size='huge'>Purchase Orders</Header>
@@ -246,63 +286,72 @@ class PurchaseOrders extends Component {
           <Grid.Column textAlign="right">
           </Grid.Column>
         </Grid>
-        <Grid columns={2} verticalAlign="middle">
-          <Grid.Column>
+        <Grid columns={2} verticalAlign="middle" stackable>
+          <Grid.Column className="header col">
             <Label
               as="a"
               className={
-                labelFilter.length > 0 && !labelFilter.includes('po-type-outbound') ?
+                labelFilter !== '' && labelFilter !== 'outbound' ?
                 'po-type outbound disabled'
                 :
                 'po-type outbound'
               }
               icon={{name: 'dolly', color: 'yellow'}}
               content="Outbound"
+              name="type"
+              value="outbound"
               onClick={this.handleLabelToggle}
             />
             <Label
               as="a"
               className={
-                labelFilter.length > 0 && !labelFilter.includes('po-type-inbound') ?
+                labelFilter !== '' && labelFilter !== 'inbound' ?
                 'po-type inbound disabled'
                 :
                 'po-type inbound'
               }
               icon={{name: 'warehouse', color: 'orange'}}
-              content="Inbound" onClick={this.handleLabelToggle}
+              content="Inbound"
+              name="type"
+              value="inbound"
+              onClick={this.handleLabelToggle}
             />
             <Label
               as="a"
               className={
-                labelFilter.length > 0 && !labelFilter.includes('po-status-complete')?
+                labelFilter !== '' && labelFilter !== 'complete' ?
                 'po-status complete disabled'
                 :
                 'po-status complete'
               }
               icon={{name: 'check', color: 'green'}}
-              content="Complete" onClick={this.handleLabelToggle}
+              content="Complete"
+              name="status"
+              value="complete"
+              onClick={this.handleLabelToggle}
             />
             <Label
               as="a"
               className={
-                labelFilter.length > 0 && !labelFilter.includes('po-status-processing')
-                 ?
+                labelFilter !== '' && labelFilter !== 'processing' ?
                 'po-status processing disabled'
                 :
                 'po-status processing'
               }
               icon={{name: 'sync', color: 'teal'}}
               content="Processing"
+              name="status"
+              value="processing"
               onClick={this.handleLabelToggle}
             />
             {labelFilter !== '' && (
               <Icon name="close" color="grey" className="clear-filter-icon" onClick={this.handleClearLabelFilter} />
             )}
           </Grid.Column>
-          <Grid.Column textAlign="right">
-            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content={showBulkMenu ? 'Hide Bulk' : 'Bulk'} onClick={this.handleBulkMenuToggle} />
-            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? null : 'brown'}} color={showFilters ? 'red' : null} content={showFilters ? 'Hide Filters' : 'Filter'} onClick={this.handleToggleFilters} />
-            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? null : 'olive'}} color={showImport ? 'red' : null} content={showImport ? 'Cancel Import' : 'Import'} onClick={this.handleShowImport} />
+          <Grid.Column textAlign="right" className="header col">
+            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content='Bulk' onClick={this.handleBulkMenuToggle} />
+            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? 'red' : 'brown'}} content='Filter' onClick={this.handleToggleFilters} />
+            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' onClick={this.handleShowImport} />
           </Grid.Column>
         </Grid>
         <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
@@ -385,30 +434,62 @@ class PurchaseOrders extends Component {
         <Transition visible={showBulkMenu} animation='fade' duration={200} unmountOnHide transitionOnMount>
           <Grid textAlign="center" columns={1} verticalAlign="middle">
             <Grid.Column>
-              <Button content="Select All" onClick={this.handleSelectAllClick} />
+              <Form>
+                <Form.Group widths="equal" style={{display: 'flex', justifyContent: 'center'}}>
+                  <Button
+                    icon={{
+                      name: selectAll ? 'close' : 'check',
+                      color: selectAll ? null : 'teal',
+                    }}
+                    color={selectAll ? 'teal' : null}
+                    content={selectAll ? 'Deselect All' : 'Select All'}
+                    onClick={this.handleSelectAllClick}
+                  />
+                  <Button
+                    icon={{
+                      name: 'search plus',
+                      color: 'teal',
+                    }}
+                    content='Scan Selected'
+                    disabled={this.state.selected.length === 0}
+                  />
+                  <Button
+                    icon={{
+                      name: 'check',
+                      color: 'green',
+                    }}
+                    content='Complete Selected'
+                    disabled={this.state.selected.length === 0}
+                  />
+                  <Button
+                    icon={{
+                      name: 'trash',
+                      color: 'red',
+                    }}
+                    content='Delete Selected'
+                    disabled={this.state.selected.length === 0}
+                  />
+                </Form.Group>
+              </Form>
             </Grid.Column>
           </Grid>
         </Transition>
         <Transition visible={showFilters} animation='fade' duration={200} unmountOnHide transitionOnMount>
-          <Grid textAlign="center" columns={1} verticalAlign="middle" >
-            <Grid.Column>
-                <Grid container columns={1} verticalAlign="middle" centered>
-                  <Form>
-                    <Header size="medium">Filters</Header>
-                    <Form.Group widths="equal" className="po-filter-form">
-                      <Form.Field label="SKU" icon='search' placeholder="SKU" className='stps-input label-left' control={Input} fluid />
-                      <Form.Field label="PO Name" icon='search' placeholder="PO Name" className='stps-input label-left' control={Input} fluid />
-                      <Form.Field label="PO Status" icon='search' placeholder="PO Status" className='stps-input label-left' control={Input} fluid />
-                      <Form.Field label="PO Type" icon='search' placeholder="PO Type" className='stps-input label-left' control={Input} fluid />
-                      <Form.Field label="Date Created From" icon='search' placeholder='Date Created label-left' control={Input} className='stps-input label-left' type="date" fluid />
-                      <Form.Field label="to" icon='search' placeholder='Date Created label-left' control={Input} className='stps-input label-left' type="date" fluid />
-                    </Form.Group>
-                  </Form>
-                </Grid>
-            </Grid.Column>
-          </Grid>
+          <PurchaseOrderFilterForm
+            handleFilterSearch={this.handleFilterSearch}
+          />
         </Transition>
-        {purchaseOrdersList}
+        {purchaseOrdersList.length > 0 ?
+         purchaseOrdersList
+         :
+         <NoResultsMessage
+           showMessage={this.state.purchaseOrders.length > 0 ? false : true}
+           messageHeader={"No Purchase Orders Found"}
+           messageText={"It looks like you haven't imported any purchase orders yet."}
+           buttonText={"Import Purchase Order"}
+           handleButtonClick={this.handleShowImport}
+         />
+        }
       </div>
     )
   }
