@@ -516,6 +516,10 @@ th.table-header.no-select:hover {
   margin: 0px !important;
 }
 
+.po-filter-form .form-col {
+  min-width: 180px;
+}
+
 .filter-submit {
   padding: 10px;
   margin-bottom: 10px !important;
@@ -526,12 +530,6 @@ th.table-header.no-select:hover {
 .stps-input i[class="search icon"]:hover {
   cursor: pointer !important;
   pointer-events: inherit;
-}
-
-@media screen and (max-width: 1200px) {
-  .po-filter-form {
-    flex-wrap: wrap;
-  }
 }
 
 i.clear-filter-icon {

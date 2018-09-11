@@ -75,9 +75,10 @@ class PurchaseOrderFilterForm extends Component {
     return(
       <Grid textAlign="center" columns={1} verticalAlign="middle">
         <Grid.Column>
-            <Grid container columns={1} verticalAlign="middle" centered>
-              <Form onSubmit={this.handleSubmit}>
-                <Form.Group widths="equal" className="po-filter-form">
+          <Form onSubmit={this.handleSubmit}>
+            <Form.Group widths="equal" className="po-filter-form">
+              <Grid container columns={7} verticalAlign="middle" centered stackable>
+                <Grid.Column className="form-col">
                   <Form.Field
                     label="SKU"
                     placeholder="SKU"
@@ -88,6 +89,8 @@ class PurchaseOrderFilterForm extends Component {
                     onChange={this.handleChange}
                     fluid
                   />
+                </Grid.Column>
+                <Grid.Column className="form-col">
                   <Form.Field
                     label="PO Name"
                     placeholder="PO Name"
@@ -98,6 +101,8 @@ class PurchaseOrderFilterForm extends Component {
                     onChange={this.handleChange}
                     fluid
                   />
+                </Grid.Column>
+                <Grid.Column className="form-col">
                   <Form.Select
                     value={status}
                     content="status"
@@ -108,6 +113,8 @@ class PurchaseOrderFilterForm extends Component {
                     options={selectOptions.status}
                     fluid
                   />
+                </Grid.Column>
+                <Grid.Column className="form-col">
                   <Form.Select
                     value={type}
                     content="type"
@@ -118,6 +125,8 @@ class PurchaseOrderFilterForm extends Component {
                     options={selectOptions.type}
                     fluid
                   />
+                </Grid.Column>
+                <Grid.Column className="form-col">
                   <Form.Field
                     label="Date Created From"
                     placeholder='Date Created label-left'
@@ -129,6 +138,8 @@ class PurchaseOrderFilterForm extends Component {
                     onChange={this.handleSelect}
                     fluid
                   />
+                </Grid.Column>
+                <Grid.Column className="form-col">
                   <Form.Field
                     label="to"
                     placeholder='Date Created label-left'
@@ -140,15 +151,16 @@ class PurchaseOrderFilterForm extends Component {
                     onChange={this.handleSelect}
                     fluid
                   />
-                </Form.Group>
-                <Form.Group className="filter-submit">
-                  <Button
-                    content="Search"
-                    icon="search"
-                  />
-                </Form.Group>
-              </Form>
-            </Grid>
+                </Grid.Column>
+              </Grid>
+            </Form.Group>
+            <Form.Group className="filter-submit">
+              <Button
+                content="Search"
+                icon="search"
+              />
+            </Form.Group>
+          </Form>
         </Grid.Column>
       </Grid>
     )
