@@ -61,7 +61,7 @@ class Dashboard extends Component {
               name='orders'
               active={this.isMenuActive('orders')}
             />
-            <Dropdown item text='Inventory' name="inventory" className={this.isMenuActive('inventory') ? 'dropdown-active' : ''}>
+            <Dropdown item text='Inventory' name="inventory" icon={{name: 'chevron down', size: 'small', color: 'teal', className: 'dropdown-icon'}} className={this.isMenuActive('inventory') ? 'dropdown-active' : ''}>
               <Dropdown.Menu>
                 <Dropdown.Item as={Link} to="/app/inventory/products" name="products" active={this.isMenuActive('products')}>Products</Dropdown.Item>
                 <Dropdown.Item as={Link} to="/app/inventory/scanner" name="export" active={this.isMenuActive('scanner')}>Scanner</Dropdown.Item>
@@ -75,7 +75,7 @@ class Dashboard extends Component {
               active={this.isMenuActive('purchase-orders')}
             />
             <Menu.Menu position='right'>
-              <Dropdown item text='Account' name="account" className={this.isMenuActive('account') ? 'dropdown-active' : ''}>
+              <Dropdown item text='Account' name="account" icon={{name: 'chevron down', size: 'small', color: 'teal', className: 'dropdown-icon'}} className={this.isMenuActive('account') ? 'dropdown-active' : ''}>
                 <Dropdown.Menu name='account'>
                   <Dropdown.Item as={Link} to="/app/account/profile" name="account" active={this.isMenuActive('profile')}>Profile</Dropdown.Item>
                   <Dropdown.Item as={Link} to="/app/account/billing" name="account" active={this.isMenuActive('billing')}>Billing</Dropdown.Item>

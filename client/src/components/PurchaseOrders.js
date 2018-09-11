@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox, Responsive } from 'semantic-ui-react';
+import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox } from 'semantic-ui-react';
 import { parseCSV, validatePOInputs, validatePOHeaders } from '../services/parseCSV';
 import { importPurchaseOrder, fetchPurchaseOrders } from '../store/actions/purchaseOrders';
 import PurchaseOrderListItem from './PurchaseOrderListItem';
@@ -39,6 +39,9 @@ class PurchaseOrders extends Component {
       showFilters: false,
       labelFilter: '',
       showBulkMenu: false,
+      showSortMenu: false,
+      sortBy: 'dateCreated',
+      sortDirection: 'ascending',
     }
   }
 
@@ -53,7 +56,7 @@ class PurchaseOrders extends Component {
           ...po,
           status,
         }
-      })
+      }).sort((a,b)=> (a.createdOn < b.createdOn ? -1 : 1 ))
       this.setState({
         isLoading: false,
         purchaseOrders,
@@ -243,8 +246,41 @@ class PurchaseOrders extends Component {
     })
   }
 
+  handleShowSortMenu = () => {
+    this.setState({
+      showSortMenu: !this.state.showSortMenu,
+    })
+  }
+
+  handleSort = (e, clicked) => {
+    this.setState({
+      showSortMenu: false,
+    })
+    let { sortBy, purchaseOrders, filteredPurchaseOrders, sortDirection } = this.state
+
+    if (sortBy !== clicked.value) {
+      this.setState({
+        sortBy: clicked.value,
+        purchaseOrders: purchaseOrders.sort((a,b)=> (a[clicked.value] === undefined) - (b[clicked.value] === undefined) || a[clicked.value] < b[clicked.value] ? -1 : 1 ),
+        filteredPurchaseOrders: filteredPurchaseOrders.sort((a,b)=> (a[clicked.value] === undefined) - (b[clicked.value] === undefined) || a[clicked.value] < b[clicked.value] ? -1 : 1 ),
+        sortDirection: 'ascending',
+      })
+      console.log('ascending sort for '+ clicked.value)
+      console.log(this.state.filteredPurchaseOrders)
+      return
+    }
+
+    this.setState({
+      purchaseOrders: purchaseOrders.reverse(),
+      filteredPurchaseOrders: filteredPurchaseOrders.reverse(),
+      sortDirection: sortDirection === 'ascending' ? 'descending' : 'ascending',
+    })
+      console.log(this.state.sortDirection + ' sort for '+ clicked.value)
+      console.log(this.state.filteredPurchaseOrders.reverse())
+  }
+
   render() {
-    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll } = this.state;
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll, showSortMenu } = this.state;
     const { currentUser, errors } = this.props
     if (this.state.isLoading) {
       return(
@@ -349,6 +385,27 @@ class PurchaseOrders extends Component {
             )}
           </Grid.Column>
           <Grid.Column textAlign="right" className="header col">
+            <Label as="a" icon={{name: 'sort amount down', color: 'violet'}} content='Sort By' onClick={this.handleShowSortMenu} />
+            {showSortMenu && (
+              <span style={{position: 'relative'}}>
+                <span style={{ position: 'absolute', top: '25px', right: '-1px', zIndex: 1000, width: '100px' }}>
+                  <Button.Group size="tiny" vertical className="sort-by button-menu">
+                    <Button value="name" onClick={this.handleSort}>
+                      {this.state.sortBy == 'name' && (
+                        <Icon name={this.state.sortDirection === 'ascending' ? 'angle double down' : 'angle double up'} />
+                      )}
+                      Name
+                    </Button>
+                    <Button value="createdOn" onClick={this.handleSort}>
+                      {this.state.sortBy == 'createdOn' && (
+                        <Icon name={this.state.sortDirection === 'ascending' ? 'angle double down' : 'angle double up'} />
+                      )}
+                      Date
+                    </Button>
+                  </Button.Group>
+                </span>
+              </span>
+            )}
             <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content='Bulk' onClick={this.handleBulkMenuToggle} />
             <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? 'red' : 'brown'}} content='Filter' onClick={this.handleToggleFilters} />
             <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' onClick={this.handleShowImport} />

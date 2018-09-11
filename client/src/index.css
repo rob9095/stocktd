@@ -406,6 +406,13 @@ a.right.item.no-hover {
     border-color: #3fd1c4;
 }
 
+/* Dropdown Icon */
+
+i.dropdown-icon {
+    margin-left: 9px !important;
+    margin-top: 3px !important;
+}
+
 /* Dashboard/App */
 .app-container {
   padding-top: 0em !important;
@@ -518,6 +525,7 @@ th.table-header.no-select:hover {
 
 .po-filter-form .form-col {
   min-width: 180px;
+  padding: 5px !important;
 }
 
 .filter-submit {
@@ -546,4 +554,9 @@ i.clear-filter-icon:hover {
   align-items: center;
   flex-direction: column;
   padding: 20px;
+}
+
+
+.sort-by.button-menu .ui.button {
+  width: 85px !important;
 }
