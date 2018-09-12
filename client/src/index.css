@@ -560,3 +560,13 @@ i.clear-filter-icon:hover {
 .sort-by.button-menu .ui.button {
   width: 85px !important;
 }
+
+/* raised segment pagination */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  padding: 20px;
+}
+.raised.segment.pagination.menu {
+    padding: 0px;
+}

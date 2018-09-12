@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox } from 'semantic-ui-react';
+import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox, Dropdown, Pagination } from 'semantic-ui-react';
 import { parseCSV, validatePOInputs, validatePOHeaders } from '../services/parseCSV';
-import { importPurchaseOrder, fetchPurchaseOrders } from '../store/actions/purchaseOrders';
+import { importPurchaseOrder, fetchPurchaseOrders, updatePurchaseOrders, fetchCompanyPoProducts } from '../store/actions/purchaseOrders';
 import PurchaseOrderListItem from './PurchaseOrderListItem';
 import PurchaseOrderFilterForm from './PurchaseOrderFilterForm';
 import NoResultsMessage from './NoResultsMessage';
@@ -23,6 +23,8 @@ class PurchaseOrders extends Component {
       isLoading: true,
       purchaseOrders: [],
       filteredPurchaseOrders: [],
+      poProducts: [],
+      filteredPoProducts: [],
       activeFile: '',
       json: [],
       selected: [],
@@ -40,15 +42,17 @@ class PurchaseOrders extends Component {
       labelFilter: '',
       showBulkMenu: false,
       showSortMenu: false,
-      sortBy: 'dateCreated',
-      sortDirection: 'ascending',
+      sortBy: '',
+      sortDirection: '',
+      rowsPerPage: 10,
+      activePage: 1,
     }
   }
 
   componentDidMount() {
     this.props.removeError()
     this.props.fetchPurchaseOrders(this.props.currentUser)
-    .then(res=>{
+    .then(async res=>{
       let purchaseOrders = res.map(po=>{
         let status = po.isComplete === true ? 'complete' : 'processing'
         // todo add po skus to po
@@ -61,6 +65,11 @@ class PurchaseOrders extends Component {
         isLoading: false,
         purchaseOrders,
         filteredPurchaseOrders: purchaseOrders,
+      })
+      let response = await this.props.fetchCompanyPoProducts(this.props.currentUser)
+      this.setState({
+        poProducts: response.poProducts,
+        filteredPoProducts: response.poProducts,
       })
     })
     .catch(err=>{
@@ -252,6 +261,13 @@ class PurchaseOrders extends Component {
     })
   }
 
+  sortArray = (array,sortDirection,sortBy) => {
+    return sortDirection === 'ascending' ?
+      array.sort((a,b)=> (a[sortBy] < b[sortBy] ? -1 : 1))
+      :
+      array.sort((a,b)=> (b[sortBy] < a[sortBy] ? -1 : 1 ))
+  }
+
   handleSort = (e, clicked) => {
     this.setState({
       showSortMenu: false,
@@ -261,33 +277,80 @@ class PurchaseOrders extends Component {
     if (sortBy !== clicked.value) {
       this.setState({
         sortBy: clicked.value,
-        purchaseOrders: purchaseOrders.sort((a,b)=> (a[clicked.value] === undefined) - (b[clicked.value] === undefined) || a[clicked.value] < b[clicked.value] ? -1 : 1 ),
-        filteredPurchaseOrders: filteredPurchaseOrders.sort((a,b)=> (a[clicked.value] === undefined) - (b[clicked.value] === undefined) || a[clicked.value] < b[clicked.value] ? -1 : 1 ),
+        purchaseOrders: this.sortArray(purchaseOrders,'ascending',clicked.value),
+        filteredPurchaseOrders: this.sortArray(filteredPurchaseOrders,'ascending',clicked.value),
         sortDirection: 'ascending',
       })
-      console.log('ascending sort for '+ clicked.value)
-      console.log(this.state.filteredPurchaseOrders)
       return
     }
-
+    sortDirection = sortDirection === 'ascending' ? 'descending' : 'ascending'
     this.setState({
-      purchaseOrders: purchaseOrders.reverse(),
-      filteredPurchaseOrders: filteredPurchaseOrders.reverse(),
-      sortDirection: sortDirection === 'ascending' ? 'descending' : 'ascending',
+      purchaseOrders: this.sortArray(purchaseOrders,sortDirection,clicked.value),
+      filteredPurchaseOrders: this.sortArray(purchaseOrders,sortDirection,clicked.value),
+      sortDirection,
     })
-      console.log(this.state.sortDirection + ' sort for '+ clicked.value)
-      console.log(this.state.filteredPurchaseOrders.reverse())
+  }
+
+  handleRowsPerPageChange = (e, { value }) => this.setState({ rowsPerPage: parseInt(value), activePage: 1 })
+
+  handlePaginationChange = (e, { activePage }) => this.setState({ activePage })
+
+  handleBulkComplete = () => {
+    let selected = this.state.selected;
+    //make updates, adding update flag
+    let purchaseOrders = this.state.purchaseOrders.map(po=>{
+      if (selected.indexOf(po._id) !== -1) {
+        return {
+          ...po,
+          isComplete: true,
+          update: true,
+        }
+      } else {
+        return {
+          ...po,
+        }
+      }
+    })
+    // do same for filtered pos but leave out update flag
+    let filteredPurchaseOrders = this.state.filteredPurchaseOrders.map(po=>{
+      if (selected.indexOf(po._id) !== -1) {
+        return {
+          ...po,
+          isComplete: true,
+        }
+      } else {
+        return {
+          ...po
+        }
+      }
+    })
+    let poProducts = this.state.poProducts.map(p=>({
+      ...p,
+      isComplete: false,
+    })).filter(p=>selected.indexOf(p.poId) !== -1)
+    this.props.updatePurchaseOrders(purchaseOrders.filter(po=>po.update === true),poProducts,this.props.currentUser)
+    .then(res=>{
+      console.log(res)
+      //update state
+      this.setState({
+        filteredPurchaseOrders,
+        purchaseOrders: filteredPurchaseOrders,
+      })
+    })
+    .catch(err=>{
+      console.log(err)
+    })
   }
 
   render() {
-    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll, showSortMenu } = this.state;
+    const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll, showSortMenu, rowsPerPage, activePage } = this.state;
     const { currentUser, errors } = this.props
     if (this.state.isLoading) {
       return(
         <div>loading...</div>
       )
     }
-    let purchaseOrdersList = this.state.filteredPurchaseOrders.map((po)=>{
+    let purchaseOrdersList = this.state.filteredPurchaseOrders.slice(rowsPerPage*(activePage-1), rowsPerPage*activePage).map((po)=>{
       let status = po.isComplete === true ? 'Complete' : 'Processing'
       let type = po.type === 'inbound' ? 'Inbound' : 'Outbound'
       let statusColor = po.isComplete === true ? 'green' : 'teal'
@@ -320,6 +383,19 @@ class PurchaseOrders extends Component {
             <Header size='huge'>Purchase Orders</Header>
           </Grid.Column>
           <Grid.Column textAlign="right">
+            <Menu stackable secondary>
+              <Menu.Menu position='right'>
+                <Dropdown item text={`${rowsPerPage} rows/page`}>
+                  <Dropdown.Menu>
+                    <Dropdown.Item value="10" onClick={this.handleRowsPerPageChange}>10</Dropdown.Item>
+                    <Dropdown.Item value="25" onClick={this.handleRowsPerPageChange}>25</Dropdown.Item>
+                    <Dropdown.Item value="100" onClick={this.handleRowsPerPageChange}>100</Dropdown.Item>
+                    <Dropdown.Item value="250" onClick={this.handleRowsPerPageChange}>250</Dropdown.Item>
+                    <Dropdown.Item value="500" onClick={this.handleRowsPerPageChange}>500</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Menu.Menu>
+            </Menu>
           </Grid.Column>
         </Grid>
         <Grid columns={2} verticalAlign="middle" stackable>
@@ -517,6 +593,7 @@ class PurchaseOrders extends Component {
                     }}
                     content='Complete Selected'
                     disabled={this.state.selected.length === 0}
+                    onClick={this.handleBulkComplete}
                   />
                   <Button
                     icon={{
@@ -547,6 +624,25 @@ class PurchaseOrders extends Component {
            handleButtonClick={this.handleShowImport}
          />
         }
+        {Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage)) !== 0 && (
+          <div className="pagination-container">
+            <Pagination
+              className="raised segment page-bar"
+              ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
+              firstItem={{ content: <Icon name='angle double left' />, icon: true }}
+              lastItem={{ content: <Icon name='angle double right' />, icon: true }}
+              prevItem={null}
+              nextItem={null}
+              totalPages={Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage))}
+              onPageChange={this.handlePaginationChange}
+              activePage={activePage}
+            />
+          </div>
+        )}
+        <Grid textAlign="center" columns={1} verticalAlign="middle">
+          <Grid.Column>
+          </Grid.Column>
+        </Grid>
       </div>
     )
   }
@@ -559,4 +655,4 @@ class PurchaseOrders extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, validatePOInputs, validatePOHeaders, fetchPurchaseOrders, addError, removeError})(PurchaseOrders);
+ export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, validatePOInputs, validatePOHeaders, fetchPurchaseOrders, updatePurchaseOrders, addError, removeError, fetchCompanyPoProducts})(PurchaseOrders);

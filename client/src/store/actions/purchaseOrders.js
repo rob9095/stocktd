@@ -45,3 +45,33 @@ export function fetchPoProducts(po_id, currentUser){
 		});
 	}
 }
+
+export function fetchCompanyPoProducts(currentUser, filter){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/purchase-orders/products-all', {filter, company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}
+
+export function updatePurchaseOrders(purchaseOrders, poProducts, currentUser){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/purchase-orders/update', {purchaseOrders, poProducts, company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}

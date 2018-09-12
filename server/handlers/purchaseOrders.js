@@ -51,41 +51,39 @@ exports.processPurchaseOrderImport = async (req, res, next) => {
 				}
 			}))
 			let addedPoProducts = await db.PoProduct.bulkWrite(poProducts)
-      // update quantities in main products table if PO was marked complete on import
-      if (mainPO.isComplete) {
-        // find all company products
-        let companyProducts = await db.Product.find({company: req.body.company})
-        // loop over all products and create array of updates to bulk write
-        let productUpdates = groupedPOs[ref].map(poLine => {
-          // find the related product and update interval
-          let foundProduct = companyProducts.find(product => product.skuCompany === poLine.skuCompany)
-          if (foundProduct) {
-            console.log('found product qty is')
-            console.log(foundProduct.quantity + poLine.quantity + poLine.type)
-            return {
-              updateOne: {
-                filter: { skuCompany: `${poLine.sku}-${req.body.company}`},
-                update: { quantity: updateMath(foundProduct.quantity, poLine.quantity, poLine.type) },
-              }
+      // update quantities in main products table
+      // find all company products
+      let companyProducts = await db.Product.find({company: req.body.company})
+      // loop over all products and create array of updates to bulk write
+      let productUpdates = groupedPOs[ref].map(poLine => {
+        // find the related product and update interval
+        let foundProduct = companyProducts.find(product => product.skuCompany === poLine.skuCompany)
+        if (foundProduct) {
+          console.log('found product qty is')
+          console.log(foundProduct.quantity + poLine.quantity + poLine.type)
+          return {
+            updateOne: {
+              filter: { skuCompany: `${poLine.sku}-${req.body.company}`},
+              update: { quantity: updateMath(foundProduct.quantity, poLine.quantity, poLine.type) },
             }
-          } else {
-            // otherwise insert it with inital qty of 0
-            console.log('inserting product')
-            return {
-              insertOne: {
-                document: {
-                  sku: poLine.sku,
-                  skuCompany: poLine.skuCompany,
-                  company: poLine.company,
-                  quantity: updateMath(0, poLine.quantity, poLine.type),
-                }
+          }
+        } else {
+          // otherwise insert it with inital qty of 0
+          console.log('inserting product')
+          return {
+            insertOne: {
+              document: {
+                sku: poLine.sku,
+                skuCompany: poLine.skuCompany,
+                company: poLine.company,
+                quantity: updateMath(0, poLine.quantity, poLine.type),
               }
             }
           }
-        })
-        let updatedProducts = await db.Product.bulkWrite(productUpdates)
-        addedProducts.push(updatedProducts)
-      }
+        }
+      })
+      let updatedProducts = await db.Product.bulkWrite(productUpdates)
+      addedProducts.push(updatedProducts)
     }
     let poProducts = await db.PoProduct.find({company: req.body.company})
     return res.status(200).json({addedPOs, addedProducts, poProducts})
@@ -111,6 +109,49 @@ exports.getPoProducts = async (req, res, next) => {
     let products = await db.PoProduct.find({poId: req.body.po_id})
     console.log(products)
     return res.status(200).json({products})
+  } catch(err) {
+    return next(err)
+  }
+}
+
+exports.getCompanyPoProducts = async (req, res, next) => {
+  try {
+    let poProducts = await db.PoProduct.find({company: req.body.company})
+    if (req.body.filter) {
+      for (let val of filter) {
+        poProducts = poProducts.filter(poP=>poP.poId === val[1])
+      }
+    }
+    return res.status(200).json({poProducts})
+  } catch(err) {
+    return next(err)
+  }
+}
+
+
+exports.updatePurchaseOrder = async (req, res, next) => {
+  try {
+    let poUpdates = req.body.purchaseOrders.map(po=>{
+      return {
+        updateOne: {
+          filter: { _id: po._id},
+          update: {...po},
+        }
+      }
+    })
+    let poProductUpdates = req.body.poProducts.map(poLine => ({
+      updateOne: {
+        filter: { skuCompany: poLine.skuCompany, poRef: poLine.poRef},
+        update: {...poLine},
+        upsert: true,
+      }
+    }))
+    let updatedPurchaseOrders = await db.PurchaseOrder.bulkWrite(poUpdates)
+    let updatedPoProducts = await db.PoProduct.bulkWrite(poProductUpdates)
+    return res.status(200).json({
+      updatedPurchaseOrders,
+      updatedPoProducts,
+    })
   } catch(err) {
     return next(err)
   }
