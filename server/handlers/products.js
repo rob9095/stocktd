@@ -34,9 +34,18 @@ exports.processProductImport = async (req, res, next) => {
 
 exports.getProducts = async (req, res, next) => {
 	try {
-		console.log(req.body)
-		let products = await db.Product.find({company: req.body.company})
-		return res.status(200).json({products})
+		let count = await db.Product.count({company: req.body.company})
+		const limit = req.body.rowsPerPage
+		const skip = (req.body.activePage * req.body.rowsPerPage) - req.body.rowsPerPage
+		const totalPages = Math.floor(count / req.body.rowsPerPage)
+		let products = await db.Product.find({company: req.body.company}).skip(skip).limit(limit)
+		return res.status(200).json({
+			products,
+			totalPages,
+			skip,
+			activePage: req.body.activePage,
+			rowsPerPage: req.body.rowsPerPage,
+		})
 	} catch(err) {
 		return next(err);
 	}
