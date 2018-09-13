@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label } from 'semantic-ui-react';
+import { Header, Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label } from 'semantic-ui-react';
 import { fetchAllProducts } from '../store/actions/products';
 import { goToTop } from 'react-scrollable-anchor';
 import ProductFilterForm from './ProductFilterForm';
@@ -22,6 +22,8 @@ class InventoryProductTable extends Component {
       direction: 'ascending',
       query: [],
       showImport: false,
+      showFilters: false,
+      showBulkMenu: false,
     }
   }
 
@@ -110,14 +112,15 @@ class InventoryProductTable extends Component {
     this.handleProductDataFetch(1,this.state.rowsPerPage)
   }
 
-  handleShowImport = () => {
+  handleMenuToggle = (e,{value}) => {
+    console.log(value)
     this.setState({
-      showImport: !this.state.showImport,
+      [value]: !this.state[value]
     })
   }
 
   render(){
-    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport } = this.state;
+    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport, showFilters, showBulkMenu } = this.state;
     let tableRows = this.state.products.map(p => {
       const isSelected = this.isSelected(p._id);
       return (
@@ -143,38 +146,45 @@ class InventoryProductTable extends Component {
     })
     return(
       <div>
-        <ProductFilterForm
-          handleFilterSearch={this.handleFilterSearch}
-        />
+        <Grid container columns={2} verticalAlign="middle">
+          <Grid.Column>
+            <Header size='huge'>Products</Header>
+          </Grid.Column>
+          <Grid.Column textAlign="right">
+            <Menu stackable secondary>
+              <Menu.Menu position='right'>
+                <Dropdown item text={`${rowsPerPage} rows/page`}>
+                  <Dropdown.Menu>
+                    <Dropdown.Item value="50" onClick={this.handleRowsPerPageChange}>50</Dropdown.Item>
+                    <Dropdown.Item value="100" onClick={this.handleRowsPerPageChange}>100</Dropdown.Item>
+                    <Dropdown.Item value="250" onClick={this.handleRowsPerPageChange}>250</Dropdown.Item>
+                    <Dropdown.Item value="500" onClick={this.handleRowsPerPageChange}>500</Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Menu.Menu>
+            </Menu>
+          </Grid.Column>
+        </Grid>
         <Grid columns={2} verticalAlign="middle" stackable>
           <Grid.Column className="header col">
           </Grid.Column>
           <Grid.Column textAlign="right" className="header col">
-            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' onClick={this.handleShowImport} />
+            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content='Bulk' value="showBulkMenu" onClick={this.handleMenuToggle} />
+            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? 'red' : 'brown'}} content='Filter' value="showFilters" onClick={this.handleMenuToggle} />
+            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' value="showImport" onClick={this.handleMenuToggle} />
           </Grid.Column>
         </Grid>
         <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
           <ProductUploadForm />
         </Transition>
-        <Segment loading={isLoading} basic>
+        <Transition visible={showFilters} animation='fade' duration={200} unmountOnHide transitionOnMount>
+          <ProductFilterForm
+            handleFilterSearch={this.handleFilterSearch}
+          />
+        </Transition>
+        <Segment loading={isLoading} basic className="no-pad">
           <Table celled compact definition sortable>
             <Table.Header fullWidth>
-              <Table.Row>
-                <Table.HeaderCell colSpan={9} className="table-header no-select">
-                  <Menu stackable secondary>
-                    <Menu.Menu position='right'>
-                      <Dropdown item text={`${rowsPerPage} rows/page`}>
-                        <Dropdown.Menu>
-                          <Dropdown.Item value="50" onClick={this.handleRowsPerPageChange}>50</Dropdown.Item>
-                          <Dropdown.Item value="100" onClick={this.handleRowsPerPageChange}>100</Dropdown.Item>
-                          <Dropdown.Item value="250" onClick={this.handleRowsPerPageChange}>250</Dropdown.Item>
-                          <Dropdown.Item value="500" onClick={this.handleRowsPerPageChange}>500</Dropdown.Item>
-                        </Dropdown.Menu>
-                      </Dropdown>
-                    </Menu.Menu>
-                  </Menu>
-                </Table.HeaderCell>
-              </Table.Row>
               <Table.Row>
                 <Table.HeaderCell collapsing>
                   <Checkbox
@@ -226,34 +236,19 @@ class InventoryProductTable extends Component {
             <Table.Body>
               {tableRows}
             </Table.Body>
-
-            <Table.Footer fullWidth>
-              <Table.Row>
-                <Table.HeaderCell />
-                <Table.HeaderCell colSpan='9'>
-                  <Button icon labelPosition='left' primary size='small'>
-                    <Icon name='user' /> Add User
-                  </Button>
-                  <Button size='small'>Approve</Button>
-                  <Button disabled size='small'>
-                    Approve All
-                  </Button>
-                  <Pagination
-                    size='mini'
-                    floated='right'
-                    ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
-                    firstItem={{ content: <Icon name='angle double left' />, icon: true }}
-                    lastItem={{ content: <Icon name='angle double right' />, icon: true }}
-                    prevItem={{ content: <Icon name='angle left' />, icon: true }}
-                    nextItem={{ content: <Icon name='angle right' />, icon: true }}
-                    totalPages={this.state.totalPages}
-                    onPageChange={this.handlePaginationChange}
-                    activePage={activePage}
-                  />
-                </Table.HeaderCell>
-              </Table.Row>
-            </Table.Footer>
           </Table>
+          <Pagination
+            size='mini'
+            floated='right'
+            ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
+            firstItem={{ content: <Icon name='angle double left' />, icon: true }}
+            lastItem={{ content: <Icon name='angle double right' />, icon: true }}
+            prevItem={{ content: <Icon name='angle left' />, icon: true }}
+            nextItem={{ content: <Icon name='angle right' />, icon: true }}
+            totalPages={this.state.totalPages}
+            onPageChange={this.handlePaginationChange}
+            activePage={activePage}
+          />
         </Segment>
       </div>
     )

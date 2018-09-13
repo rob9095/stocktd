@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Grid, Form, Button, Input, Icon, Transition, Label } from 'semantic-ui-react';
+import { Grid, Form, Button, Input, Icon, Transition, Label, Dropdown } from 'semantic-ui-react';
 
 class ProductFilterForm extends Component {
   constructor(props) {
@@ -101,11 +101,11 @@ class ProductFilterForm extends Component {
               <div className="filter-show-more" onClick={this.handleShowMore}>
               {showMore ?
                   <div>
-                    <Label basic icon={{name:"angle double up", color:"teal"}} content="Show Less"/>
+                    <Label className="segment raised no-pad" basic icon={{name:"angle double up", color:"teal"}} content="Show Less"/>
                   </div>
                   :
                   <div>
-                    <Label basic icon={{name:"angle double down", color:"teal"}} content="Show More"/>
+                    <Label className="segment raised no-pad" basic icon={{name:"angle double down", color:"teal"}} content="Show More"/>
                   </div>
                 }
               </div>

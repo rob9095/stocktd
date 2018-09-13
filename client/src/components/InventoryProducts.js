@@ -21,15 +21,16 @@ class InventoryProducts extends Component {
   render() {
     const { currentUser, activeItem } = this.props
     return(
-      <Grid container columns={1} verticalAlign="middle" stackable>
-        <Grid.Column>
-          <Header size='medium'>Products</Header>
-          <Button onClick={this.handleResendVerEmail}>
-            resend verifcation email
-          </Button>
-          <InventoryProductTable />
-        </Grid.Column>
-      </Grid>
+      <div>
+        <Grid container columns={1} verticalAlign="middle" stackable>
+          <Grid.Column>
+            <Button onClick={this.handleResendVerEmail}>
+              resend verifcation email
+            </Button>
+          </Grid.Column>
+        </Grid>
+        <InventoryProductTable />
+      </div>
     )
   }
 }
