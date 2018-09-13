@@ -535,6 +535,23 @@ th.table-header.no-select:hover {
   justify-content: center;
 }
 
+.filter-submit.margin-top {
+  margin-top: -40px !important;
+}
+
+.filter-show-more:hover {
+  cursor: pointer;
+}
+
+.filter-show-more {
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  padding: 10px;
+  flex-direction: column;
+}
+
 .stps-input i[class="search icon"]:hover {
   cursor: pointer !important;
   pointer-events: inherit;

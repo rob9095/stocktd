@@ -1,6 +1,43 @@
 import { addError } from '../store/actions/errors';
 const csvtojson=require("csvtojson");
 
+export const validateInputs = (json, validInputs) => {
+  return dispatch => {
+    return new Promise((resolve,reject) => {
+      let errorList = [];
+      let reqInputs = validInputs.filter(i=>i.required === true)
+      let c = 0;
+      for (let line of json) {
+        for (let input of validInputs) {
+          if (line[input.value] === '' && input.required === true) {
+            errorList.push(`Missing Required Input: "${input.value}" on line ${c+1} is missing`)
+            reject({
+              errorType: 'error',
+              errorHeader: 'Please fix the errors and upload the file again',
+              errorList,
+            });
+          }
+          if (input.type === 'number') {
+            if (!Number.isInteger(parseInt(line[input.value]))) {
+              errorList.push(`Invalid Number: "${line[input.value]}" on line ${c+1} is not a valid number`)
+              reject({
+                errorType: 'error',
+                errorHeader: 'Please fix the errors and upload the file again',
+                errorList,
+              });
+            }
+          }
+        }
+        c++
+      }
+      resolve({
+        isValid: true,
+      })
+    })
+  }
+
+}
+
 export const validatePOInputs = (json, validInputs) => {
   let errorList = [];
   return dispatch => {
@@ -35,18 +72,17 @@ export const validatePOInputs = (json, validInputs) => {
   }
 }
 
-export const validatePOHeaders = (json, poHeaders) => {
+export const validateHeaders = (json, headers) => {
   return dispatch => {
     return new Promise((resolve,reject) => {
       let inputHeaders = Object.keys(json[0]).filter(iH=> !iH.startsWith('field'))
-      let reqHeaders = poHeaders.filter(h => h.required === true)
+      let reqHeaders = headers.filter(h => h.required === true)
       let warnings = [];
-      reqHeaders.filter(rh => rh.required !== true)
       for (let inputHeader of inputHeaders) {
-        if (!poHeaders.some(poH=>poH.value === inputHeader)) {
+        if (!headers.some(poH=>poH.value === inputHeader)) {
           warnings.push(`Invalid Header: "${inputHeader}" will be ignored`)
         }
-        poHeaders.forEach(h => {
+        headers.forEach(h => {
           if (h.required === true && h.value === inputHeader) {
             reqHeaders = reqHeaders.filter(rh=>rh.value !== inputHeader)
           }
@@ -64,9 +100,6 @@ export const validatePOHeaders = (json, poHeaders) => {
           errorList,
         })
         return
-      }
-      if (!inputHeaders.includes('po status')){
-        warnings.push('Missing Header: "po status"','PO will be marked complete on import')
       }
       if (warnings.length > 0) {
         console.log('the warnings are')

@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment } from 'semantic-ui-react';
+import { Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label } from 'semantic-ui-react';
 import { fetchAllProducts } from '../store/actions/products';
 import { goToTop } from 'react-scrollable-anchor';
+import ProductFilterForm from './ProductFilterForm';
+import ProductUploadForm from './ProductUploadForm';
 
 class InventoryProductTable extends Component {
   constructor(props) {
@@ -16,15 +18,20 @@ class InventoryProductTable extends Component {
       products: [],
       selected: [],
       selectAll: false,
-      column: '',
-      direction: '',
+      column: 'sku',
+      direction: 'ascending',
+      query: [],
+      showImport: false,
     }
   }
 
   handleProductDataFetch = (requestedPage,requestedRowsPerPage) => {
+    this.setState({
+      isLoading: true,
+    })
     return new Promise((resolve,reject)=>{
-      this.props.fetchAllProducts(requestedPage, requestedRowsPerPage, this.props.currentUser.user.company)
-      .then(({products, activePage, totalPages, rowsPerPage, lowerPageLimit, upperPageLimit, skip})=>{
+      this.props.fetchAllProducts(this.state.query,this.state.column, this.state.direction, requestedPage, requestedRowsPerPage, this.props.currentUser.user.company)
+      .then(({products, activePage, totalPages, rowsPerPage, skip})=>{
         this.setState({
           isLoading: false,
           dataPage: 1,
@@ -72,41 +79,45 @@ class InventoryProductTable extends Component {
   };
 
   handleRowsPerPageChange = (e, { value }) => {
-    this.setState({
-      isLoading: true,
-    })
     this.handleProductDataFetch(this.state.activePage,parseInt(value))
   }
 
   handlePaginationChange = async (e, { activePage }) => {
-    this.setState({
-      isLoading: true,
-    })
     await this.handleProductDataFetch(activePage,this.state.rowsPerPage)
     goToTop();
   }
 
-  handleSort = clickedColumn => () => {
+  handleSort = clickedColumn => async () => {
     const { column, products, direction } = this.state
-
     if (column !== clickedColumn) {
-      this.setState({
+      await this.setState({
         column: clickedColumn,
-        products: products.sort((a,b)=> (a[clickedColumn] === undefined) - (b[clickedColumn] === undefined) || a[clickedColumn] < b[clickedColumn] ? -1 : 1 ),
         direction: 'ascending',
       })
-
+      this.handleProductDataFetch(this.state.activePage,this.state.rowsPerPage)
       return
     }
-
-    this.setState({
-      products: products.reverse(),
+    await this.setState({
       direction: direction === 'ascending' ? 'descending' : 'ascending',
+    })
+    this.handleProductDataFetch(this.state.activePage,this.state.rowsPerPage)
+  }
+
+  handleFilterSearch = async (query) => {
+    await this.setState({
+      query,
+    })
+    this.handleProductDataFetch(1,this.state.rowsPerPage)
+  }
+
+  handleShowImport = () => {
+    this.setState({
+      showImport: !this.state.showImport,
     })
   }
 
   render(){
-    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip } = this.state;
+    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport } = this.state;
     let tableRows = this.state.products.map(p => {
       const isSelected = this.isSelected(p._id);
       return (
@@ -132,6 +143,19 @@ class InventoryProductTable extends Component {
     })
     return(
       <div>
+        <ProductFilterForm
+          handleFilterSearch={this.handleFilterSearch}
+        />
+        <Grid columns={2} verticalAlign="middle" stackable>
+          <Grid.Column className="header col">
+          </Grid.Column>
+          <Grid.Column textAlign="right" className="header col">
+            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' onClick={this.handleShowImport} />
+          </Grid.Column>
+        </Grid>
+        <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
+          <ProductUploadForm />
+        </Transition>
         <Segment loading={isLoading} basic>
           <Table celled compact definition sortable>
             <Table.Header fullWidth>

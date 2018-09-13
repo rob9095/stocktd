@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Input, Checkbox, Dropdown, Pagination } from 'semantic-ui-react';
-import { parseCSV, validatePOInputs, validatePOHeaders } from '../services/parseCSV';
+import { parseCSV, validatePOInputs, validateHeaders } from '../services/parseCSV';
 import { importPurchaseOrder, fetchPurchaseOrders, updatePurchaseOrders, fetchCompanyPoProducts } from '../store/actions/purchaseOrders';
 import PurchaseOrderListItem from './PurchaseOrderListItem';
 import PurchaseOrderFilterForm from './PurchaseOrderFilterForm';
@@ -88,7 +88,7 @@ class PurchaseOrders extends Component {
     this.props.parseCSV(e)
     .then(async ({json, jsonLowerCase}) => {
       console.log(jsonLowerCase)
-      let headerCheck = await this.props.validatePOHeaders(jsonLowerCase, poHeaders)
+      let headerCheck = await this.props.validateHeaders(jsonLowerCase, poHeaders)
       if (headerCheck.errorType === 'warning') {
         //display warnings
         this.props.addError(headerCheck.errorList)
@@ -655,4 +655,4 @@ class PurchaseOrders extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, validatePOInputs, validatePOHeaders, fetchPurchaseOrders, updatePurchaseOrders, addError, removeError, fetchCompanyPoProducts})(PurchaseOrders);
+ export default connect(mapStateToProps, {parseCSV, importPurchaseOrder, validatePOInputs, validateHeaders, fetchPurchaseOrders, updatePurchaseOrders, addError, removeError, fetchCompanyPoProducts})(PurchaseOrders);

@@ -1,10 +1,11 @@
 import { apiCall } from '../../services/api';
 import { addError } from './errors';
 
-export function fetchAllProducts(activePage, rowsPerPage, company){
+export function fetchAllProducts(query, sortBy, sortDirection, activePage, rowsPerPage, company){
   return dispatch => {
 		return new Promise((resolve,reject) => {
-			return apiCall('post', `/api/products/`, {activePage, rowsPerPage, company})
+            console.log(query)
+			return apiCall('post', `/api/products/`, {query, sortBy, sortDirection, activePage, rowsPerPage, company})
 			.then((res) => {
 				resolve(res);
 			})
