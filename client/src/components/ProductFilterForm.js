@@ -1,5 +1,13 @@
 import React, { Component } from 'react';
-import { Grid, Form, Button, Input, Icon, Transition, Label, Dropdown } from 'semantic-ui-react';
+import { Grid, Form, Button, Input, Icon, Transition, Label, Dropdown, Select } from 'semantic-ui-react';
+
+const options = [
+  { key: 'equal', text: '=', value: 'equal' },
+  { key: 'gte', text: '>=', value: 'gte' },
+  { key: 'gt', text: ' >', value: 'gt' },
+  { key: 'lte', text: '<=', value: 'lte' },
+  { key: 'lt', text: '<', value: 'lt' },
+]
 
 class ProductFilterForm extends Component {
   constructor(props) {
@@ -14,6 +22,12 @@ class ProductFilterForm extends Component {
         weight: '',
         supplier: '',
         brand: '',
+      },
+      selects: {
+        quantity: '',
+        quantityToShip: '',
+        price: '',
+        weight: '',
       },
       showMore: false,
     }
@@ -33,14 +47,34 @@ class ProductFilterForm extends Component {
     })
   }
 
+  handleSelect = (e,clicked) => {
+    console.log(clicked)
+    this.setState({
+      selects: {
+        [clicked.content]: clicked.value,
+      }
+    })
+  }
+
   handleSubmit = (e,submission) => {
-    // fitler out any empty entries
-    const query = Object.entries(this.state.values).filter(val=>val[1] !== '')
+    // fitler out any empty entries or equal selects
+    const selects = Object.entries(this.state.selects).filter(val=>val[1] !== '' && val[1] !== 'equal')
+    console.log(selects)
+    const query = Object.entries(this.state.values).filter(val=>val[1] !== '').map(val=>{
+      //check if we have a select for the query value, if we do add it to the element in the query array
+      let select = selects.find(s=>s[0] === val[0])
+      if(select) {
+        return [...val,select[1]]
+      } else {
+        return [...val]
+      }
+    })
+    //query = ['searchField','searchValue','less than, greater than, etc']
     this.props.handleFilterSearch(query)
   }
 
   render() {
-    const { sku, title, quantity, quantityToShip, price, weight, brand, supplier, showMore } = this.state;
+    const { sku, title, quantity, quantityToShip, price, weight, brand, supplier, showMore, quantitySelect, quantityToShipSelect, priceSelect, weightSelect } = this.state;
     return(
       <Grid textAlign="center" columns={1} verticalAlign="middle">
         <Grid.Column>
@@ -81,7 +115,12 @@ class ProductFilterForm extends Component {
                     name="quantity"
                     onChange={this.handleChange}
                     fluid
-                  />
+                    type="number"
+                    //width={14}
+                  >
+                    <Select onChange={this.handleSelect} content="quantity" value={quantitySelect} className="small-select" compact options={options} placeholder='=' icon={null} />
+                    <input />
+                  </Form.Field>
                 </Grid.Column>
                 <Grid.Column className="form-col">
                   <Form.Field
@@ -94,7 +133,12 @@ class ProductFilterForm extends Component {
                     name="quantityToShip"
                     onChange={this.handleChange}
                     fluid
-                  />
+                    type="number"
+                    //width={14}
+                  >
+                    <Select onChange={this.handleSelect} content="quantityToShip" value={quantityToShipSelect} className="small-select" compact options={options} placeholder='=' icon={null} />
+                    <input />
+                  </Form.Field>
                 </Grid.Column>
               </Grid>
               </Form.Group>
@@ -112,32 +156,6 @@ class ProductFilterForm extends Component {
               <Transition visible={showMore} animation='fade' duration={200} unmountOnHide transitionOnMount>
                 <Form.Group widths="equal" className="filter-form">
                   <Grid container columns={4} verticalAlign="middle" centered stackable>
-                    <Grid.Column className="form-col">
-                      <Form.Field
-                        label="Price"
-                        placeholder="Price"
-                        className='stps-input label-left'
-                        control={Input}
-                        type="number"
-                        value={price}
-                        name="price"
-                        onChange={this.handleChange}
-                        fluid
-                      />
-                    </Grid.Column>
-                    <Grid.Column className="form-col">
-                      <Form.Field
-                        label="Weight"
-                        placeholder="Weight"
-                        className='stps-input label-left'
-                        control={Input}
-                        type="number"
-                        value={weight}
-                        name="weight"
-                        onChange={this.handleChange}
-                        fluid
-                      />
-                    </Grid.Column>
                     <Grid.Column className="form-col">
                       <Form.Field
                         label="Brand"
@@ -161,6 +179,39 @@ class ProductFilterForm extends Component {
                         onChange={this.handleChange}
                         fluid
                       />
+                    </Grid.Column>
+                    <Grid.Column className="form-col">
+                      <Form.Field
+                        label="Price"
+                        placeholder="Price"
+                        className='stps-input label-left'
+                        control={Input}
+                        type="number"
+                        value={price}
+                        name="price"
+                        onChange={this.handleChange}
+                        fluid
+                      >
+                        <Select onChange={this.handleSelect} content="price" value={priceSelect} className="small-select" compact options={options} placeholder='=' icon={null} />
+                        <input />
+                      </Form.Field>
+                    </Grid.Column>
+                    <Grid.Column className="form-col">
+                      <Form.Field
+                        label="Weight"
+                        placeholder="Weight"
+                        className='stps-input label-left'
+                        control={Input}
+                        type="number"
+                        value={weight}
+                        name="weight"
+                        onChange={this.handleChange}
+                        fluid
+                        type="number"
+                      >
+                        <Select onChange={this.handleSelect} content="weight" value={weightSelect}  className="small-select" compact options={options} placeholder='=' icon={null} />
+                        <input />
+                      </Form.Field>
                     </Grid.Column>
                   </Grid>
                 </Form.Group>

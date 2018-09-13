@@ -68,10 +68,17 @@ exports.getProducts = async (req, res, next) => {
 		}
 		for (let val of req.body.query){
 			if ((Number.isInteger(parseInt(val[1])))) {
-				query = {
-					...query,
-					[val[0]]: val[1],
-				}
+				console.log(val[2])
+				query = val[2] === undefined ?
+					{
+						...query,
+						[val[0]]: val[1],
+					}
+				 :
+				 {
+					 ...query,
+					 [val[0]]: {[`$${val[2]}`]: val[1]},
+				 }
 			} else {
 				query = {
 					...query,

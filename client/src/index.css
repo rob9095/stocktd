@@ -407,7 +407,22 @@ a.right.item.no-hover {
 }
 
 .stps-select .ui.selection.dropdown:focus {
-    border-color: #3fd1c4;
+    border-color: #3fd1c4 !important;
+}
+
+.ui.selection.dropdown:focus {
+    border-color: #3fd1c4 !important;
+}
+
+.small-select div.text {
+  position: fixed;
+  top: 14px;
+  right: 18px;
+}
+
+/* Number Input */
+.column.form-col input[type="number"] {
+  max-width: calc(100% - 45px) !important;
 }
 
 /* Dropdown Icon */
