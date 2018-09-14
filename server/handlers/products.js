@@ -124,9 +124,22 @@ exports.updateProducts = async (req,res,next) => {
 				}
 			}
 		})
-		console.log(updates)
 		let updatedProducts = await db.Product.bulkWrite(updates)
 		return res.status(200).json({updatedProducts})
+	} catch(err) {
+		return next(err)
+	}
+}
+
+exports.removeProducts = async (req,res,next) => {
+	try {
+		let products = req.body.products.map(id=>({
+			deleteOne: {
+				filter: {_id: id}
+			}
+		}))
+		let deletedProducts = await db.Product.bulkWrite(products)
+		return res.status(200).json({deletedProducts})
 	} catch(err) {
 		return next(err)
 	}

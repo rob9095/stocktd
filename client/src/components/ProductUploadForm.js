@@ -40,12 +40,7 @@ class ProductUploadForm extends Component {
       submitLoading: false,
     }
   }
-
-  // handleFileUpload = async (e) => {
-  //   let json = await this.props.parseCSV(e)
-  //   this.props.importProducts(json, this.props.currentUser, this.state.update)
-  // }
-
+  
   handleFileUpload = async (e) => {
     this.setState({
       activeFile: e.target.files[0].name,

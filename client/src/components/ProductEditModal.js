@@ -73,11 +73,11 @@ class ProductEditModal extends Component {
       return
     }
     // fitler out any empty entries or values that are the same
-    const values = Object.entries(this.state.values).filter(val=>val[1] !== '' && val[1] !== this.props.product[val[0]])
+    const values = Object.entries(this.state.values).filter(val=>val[1] !== this.props.product[val[0]])
     if (values.length === 0) {
       this.setState({
         messageType: 'error',
-        messageList: ['Please make an update and try again'],
+        messageList: ['No changes found'],
       })
       return
     }
@@ -153,7 +153,7 @@ class ProductEditModal extends Component {
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={this.toggleModal} negative icon="cancel" content="Cancel" />
+          <Button onClick={this.toggleModal} negative icon="cancel" content="Close" />
           <Button onClick={this.handleSubmit} positive icon="save" content="Save" />
         </Modal.Actions>
       </Modal>

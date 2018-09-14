@@ -334,6 +334,16 @@ a.right.item.no-hover {
 }
 
 
+/* Message Boxes */
+.flex-message {
+  display: flex;
+}
+
+.flex-message.center {
+  justify-content: center;
+  align-items: center;
+}
+
 /* Inputs */
 .stps-input div.ui.input input {
   box-shadow: 0 0px 0px 0 rgba(34,36,38,.12), 0 1px 5px 0 rgba(34,36,38,.15);
@@ -458,11 +468,6 @@ i.dropdown-icon {
   color: rgba(0,0,0,.95) !important;
 }
 
-th.table-header.no-select:hover {
-  background: inherit !important;
-  cursor: inherit !important;
-}
-
 .import-errors.message-box ul.list {
   display: flex;
   flex-direction: column;
@@ -570,7 +575,7 @@ th.table-header.no-select:hover {
   margin-top: -40px !important;
 }
 
-.filter-show-more:hover {
+.filter-show-more div:hover {
   cursor: pointer;
 }
 

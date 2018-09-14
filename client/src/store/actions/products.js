@@ -46,3 +46,18 @@ export function updateProducts(updates, currentUser){
 		});
 	}
 }
+
+export function deleteProducts(products, currentUser){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/products/delete', {products, company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}

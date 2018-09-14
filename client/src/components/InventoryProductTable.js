@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Header, Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label } from 'semantic-ui-react';
-import { fetchAllProducts, updateProducts } from '../store/actions/products';
+import { Header, Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label, Message } from 'semantic-ui-react';
+import { fetchAllProducts, updateProducts, deleteProducts } from '../store/actions/products';
 import { goToTop } from 'react-scrollable-anchor';
 import ProductFilterForm from './ProductFilterForm';
 import ProductUploadForm from './ProductUploadForm';
 import ProductEditModal from './ProductEditModal';
+import ConfirmModal from '../containers/ConfirmModal';
 
 const actionOptions = [
-  { key: 'copy', icon: 'copy', text: 'Copy', value: 'copy' },
-  { key: 'order', icon: 'shop', text: 'Add to order', value: 'order' },
-  { key: 'delete', icon: 'trash', text: 'Delete', value: 'delete' },
+  { selected: false, key: 'copy', icon: 'copy', text: 'Copy', value: 'copy' },
+  { selected: false, key: 'order', icon: 'shop', text: 'Add to order', value: 'order' },
+  { selected: false, key: 'delete', icon: 'trash', text: 'Delete', value: 'delete' },
 ]
 
 
@@ -34,6 +35,15 @@ class InventoryProductTable extends Component {
       showBulkMenu: false,
       showDisplayOptions: false,
       showEditProductModal: false,
+      showConfirmModal: false,
+      confirmItems: [],
+      confirmType: '',
+      message: {
+        open: false,
+        type: '',
+        header: '',
+        list: [],
+      }
     }
   }
 
@@ -59,6 +69,10 @@ class InventoryProductTable extends Component {
       .catch(err=>{
         this.setState({
           isLoading: false,
+        })
+        this.handleError({
+          type: 'error',
+          list: err.message,
         })
         console.log(err)
         reject();
@@ -135,8 +149,25 @@ class InventoryProductTable extends Component {
 
   handleProductUpdate = (updates, modelProduct) => {
     return new Promise((resolve,reject) => {
+      let products = this.state.products.map(p=>{
+        let update = updates.find(u=>u.id === p._id)
+        if (update) {
+          return {
+            ...p,
+            ...update,
+          }
+        } else {
+          return {
+            ...p,
+          }
+        }
+      })
       this.props.updateProducts(updates, this.props.currentUser)
       .then((res)=>{
+        this.setState({
+          modelProduct: modelProduct !== undefined ? modelProduct : this.state.modelProduct,
+          products,
+        })
         resolve({
           status: 'success',
           updatedProducts: res.updateProducts,
@@ -149,6 +180,73 @@ class InventoryProductTable extends Component {
           error: error.message,
         });
       })
+    })
+  }
+
+  handleModalConfirm = (items,type) => {
+    switch(type) {
+      case 'Delete':
+        this.handleProductDelete(items)
+        break;
+      default:
+        console.log('unknown confirmation type');
+    }
+  }
+
+  handleProductDelete = (ids) => {
+    let products = this.state.products.filter(p=>ids.indexOf(p._id) === -1)
+    let selected = this.state.selected.filter(p=>ids.indexOf(p._id) === -1)
+    const itemsText = ids.length > 1 ? 'items' : 'item'
+    this.props.deleteProducts(ids,this.props.currentUser)
+    .then(res=>{
+      this.setState({
+        products,
+        selected,
+        message: {
+          open: true,
+          type: 'success',
+          list: [`${res.deletedProducts.nRemoved} ${itemsText} successfully deleted`]
+        }
+      })
+    })
+    .catch(err=>{
+      this.handleError({
+        type: 'error',
+        list: err.message,
+      })
+    })
+  }
+
+  handleActionMenuClick = (e,clicked) => {
+    switch(clicked.value) {
+      case 'delete':
+        this.setState({
+          showConfirmModal: true,
+          confirmItems: [clicked.id],
+          confirmType: 'Delete',
+        })
+        break;
+      default:
+        console.log('unknown menu option');
+    }
+  }
+
+  handleBulkDelete = () => {
+    this.setState({
+      showConfirmModal: true,
+      confirmItems: this.state.selected,
+      confirmType: 'Delete',
+    })
+  }
+
+  handleError = ({type,list,header}) => {
+    this.setState({
+      message: {
+        open: true,
+        type,
+        list,
+        header,
+      }
     })
   }
 
@@ -168,16 +266,16 @@ class InventoryProductTable extends Component {
           </Table.Cell>
           <Table.Cell singleLine>{p.sku}</Table.Cell>
           <Table.Cell>{p.title}</Table.Cell>
-          <Table.Cell singleLine textAlign="center">{p.quantity}</Table.Cell>
-          <Table.Cell singleLine textAlign="center">{p.quantityToShip}</Table.Cell>
-          <Table.Cell singleLine textAlign="center">{p.price}</Table.Cell>
-          <Table.Cell singleLine textAlign="center">{p.weight}</Table.Cell>
+          <Table.Cell singleLine>{p.quantity}</Table.Cell>
+          <Table.Cell singleLine>{p.quantityToShip}</Table.Cell>
+          <Table.Cell singleLine>{p.price}</Table.Cell>
+          <Table.Cell singleLine>{p.weight}</Table.Cell>
           <Table.Cell>{p.brand}</Table.Cell>
           <Table.Cell>{p.supplier}</Table.Cell>
-          <Table.Cell>
+          <Table.Cell textAlign="center">
             <Button.Group>
-              <Button id={p._id} onClick={this.handleToggle} value="showEditProductModal">Edit</Button>
-              <Dropdown options={actionOptions} text=" " floating button className='icon dgrey-bg h' />
+              <Button compact id={p._id} onClick={this.handleToggle} value="showEditProductModal">Edit</Button>
+              <Dropdown id={p._id} onChange={this.handleActionMenuClick} options={actionOptions} text=" " floating button compact className='icon dgrey-bg h' />
             </Button.Group>
           </Table.Cell>
         </Table.Row>
@@ -185,12 +283,21 @@ class InventoryProductTable extends Component {
     })
     return(
       <div>
-        <Grid container columns={2} verticalAlign="middle">
+        <Grid container columns={2} verticalAlign="middle" stackable>
           {this.state.showEditProductModal && (
             <ProductEditModal
               handleToggle={this.handleToggle}
               handleProductUpdate={this.handleProductUpdate}
               product={this.state.modalProduct}
+            />
+          )}
+          {this.state.showConfirmModal && (
+            <ConfirmModal
+              items={this.state.confirmItems}
+              type={this.state.confirmType}
+              onConfirm={this.handleModalConfirm}
+              onCancel={this.handleToggle}
+              header={null}
             />
           )}
           <Grid.Column>
@@ -199,7 +306,7 @@ class InventoryProductTable extends Component {
           <Grid.Column textAlign="right">
             <Menu stackable secondary>
               <Menu.Menu position='right'>
-                <Dropdown item text={`${rowsPerPage} rows/page`}>
+                <Dropdown item icon={{name: 'chevron down', size: 'small', color: 'teal', className: 'dropdown-icon'}} text={`${rowsPerPage} rows/page`}>
                   <Dropdown.Menu>
                     <Dropdown.Item value="50" onClick={this.handleRowsPerPageChange}>50</Dropdown.Item>
                     <Dropdown.Item value="100" onClick={this.handleRowsPerPageChange}>100</Dropdown.Item>
@@ -221,7 +328,7 @@ class InventoryProductTable extends Component {
             <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' value="showImport" onClick={this.handleToggle} />
           </Grid.Column>
         </Grid>
-        <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
+        <Transition visible={showImport} animation='fade' duration={200} unmountOnHide>
           <ProductUploadForm />
         </Transition>
         <Transition visible={showFilters} animation='fade' duration={200} unmountOnHide transitionOnMount>
@@ -229,7 +336,54 @@ class InventoryProductTable extends Component {
             handleFilterSearch={this.handleFilterSearch}
           />
         </Transition>
+        <Transition visible={showBulkMenu} animation='fade' duration={200} unmountOnHide transitionOnMount>
+          <Grid textAlign="center" columns={1} verticalAlign="middle">
+            <Grid.Column>
+              <Segment basic className="no-pad">
+                <Button
+                  icon={{
+                    name: selectAll ? 'close' : 'check',
+                    color: selectAll ? null : 'teal',
+                  }}
+                  color={selectAll ? 'teal' : null}
+                  content={selectAll ? 'Deselect All' : 'Select All'}
+                  onClick={this.handleSelectAllClick}
+                />
+                <Button
+                  icon={{
+                    name: 'shop',
+                    color: 'teal',
+                  }}
+                  content='Add to Order'
+                  disabled={this.state.selected.length === 0}
+                />
+                <Button
+                  icon={{
+                    name: 'trash',
+                    color: 'red',
+                  }}
+                  content='Delete Selected'
+                  disabled={this.state.selected.length === 0}
+                  onClick={this.handleBulkDelete}
+                />
+              </Segment>
+            </Grid.Column>
+          </Grid>
+        </Transition>
         <Segment loading={isLoading} basic className="no-pad">
+            <Transition visible={this.state.message.open} animation='fade' duration={200} unmountOnHide transitionOnMount>
+              <div>
+                <div className="flex-message center">
+                  <Message
+                    error={this.state.message.type === 'error'}
+                    warning={this.state.message.type === 'warning'}
+                    success={this.state.message.type === 'success'}
+                    header={this.state.message.header || null}
+                    list={this.state.message.list}
+                  />
+                </div>
+              </div>
+            </Transition>
           <Table celled compact definition sortable>
             <Table.Header fullWidth>
               <Table.Row>
@@ -292,7 +446,6 @@ class InventoryProductTable extends Component {
                 </Table.HeaderCell>
               </Table.Row>
             </Table.Header>
-
             <Table.Body>
               {tableRows}
             </Table.Body>
@@ -302,14 +455,14 @@ class InventoryProductTable extends Component {
               size="mini"
               className="raised segment page-bar"
               ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
-              firstItem={{ content: <Icon name='angle double left' />, icon: true }}
-              lastItem={{ content: <Icon name='angle double right' />, icon: true }}
+              firstItem={null}
+              lastItem={null}
               prevItem={{ content: <Icon name='angle left' />, icon: true }}
               nextItem={{ content: <Icon name='angle right' />, icon: true }}
               totalPages={this.state.totalPages}
               onPageChange={this.handlePaginationChange}
               activePage={activePage}
-              siblingRange={0}
+              siblingRange={1}
             />
           </div>
         </Segment>
@@ -326,4 +479,4 @@ class InventoryProductTable extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {fetchAllProducts, updateProducts})(InventoryProductTable);
+ export default connect(mapStateToProps, {fetchAllProducts, updateProducts, deleteProducts})(InventoryProductTable);

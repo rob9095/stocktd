@@ -142,13 +142,13 @@ class ProductFilterForm extends Component {
                 </Grid.Column>
               </Grid>
               </Form.Group>
-              <div className="filter-show-more" onClick={this.handleShowMore}>
+              <div className="filter-show-more">
               {showMore ?
-                  <div>
+                  <div onClick={this.handleShowMore}>
                     <Label className="segment raised no-pad" basic icon={{name:"angle double up", color:"teal"}} content="Show Less"/>
                   </div>
                   :
-                  <div>
+                  <div onClick={this.handleShowMore}>
                     <Label className="segment raised no-pad" basic icon={{name:"angle double down", color:"teal"}} content="Show More"/>
                   </div>
                 }

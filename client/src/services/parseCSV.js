@@ -123,12 +123,18 @@ export const parseCSV = (event) => {
     return new Promise((resolve,reject) => {
       // Check for File API support.
       if (!window.FileReader) {
-        reject('file reader not supported in browser')
-        dispatch(addError(['File reader not supported in browser']))
+        reject({
+          errorType: 'error',
+          errorHeader: 'Please use a different browser',
+          errorList: ['File reader not supported in browser'],
+        });
       }
       if (!event.target.files[0].name.endsWith('.csv')) {
-        reject('not a csv')
-        dispatch(addError(['The imported file was not a .csv']))
+        reject({
+          errorType: 'error',
+          errorHeader: 'Invalid File Format',
+          errorList: ['The imported file is not a .csv'],
+        });
       }
       const reader = new FileReader();
       reader.readAsText(event.target.files[0]);

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Switch, Route, withRouter, Link } from 'react-router-dom';
 import { Menu, Segment, Container, Grid, Dropdown, Button, } from 'semantic-ui-react';
+import { removeError } from '../store/actions/errors';
 import InventoryProducts from '../components/InventoryProducts';
 import InventoryImport from '../components/InventoryImport';
 import PurchaseOrders from '../components/PurchaseOrders';
@@ -37,8 +38,10 @@ class Dashboard extends Component {
   }
 
   componentWillReceiveProps(newProps) {
+    //update active item and clear errors on route change
     if (newProps.location.pathname != this.props.location.pathname) {
       this.setPathname(newProps.location.pathname)
+      this.props.removeError();
     }
   }
 
@@ -103,4 +106,4 @@ function mapStateToProps(state) {
 	};
 }
 
-export default withRouter(connect(mapStateToProps, {})(Dashboard));
+export default withRouter(connect(mapStateToProps, {removeError})(Dashboard));
