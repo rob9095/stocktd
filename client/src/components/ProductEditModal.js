@@ -6,9 +6,13 @@ class ProductEditModal extends Component {
     super(props)
     this.state = {
       isOpen: true,
-      errorList: [],
-      errorHeader: '',
+      messageList: [],
+      messageHeader: '',
+      messageType: '',
       skuError: false,
+      product: {
+        ...this.props.product,
+      },
       values: {
         sku: '',
         title: '',
@@ -49,19 +53,62 @@ class ProductEditModal extends Component {
     this.props.handleToggle(null,{value: 'showEditProductModal'})
   }
 
+  clearErrors = () => {
+    this.setState({
+      messageType: '',
+      messageList: [],
+      messageHeader: '',
+      skuError: false,
+    })
+  }
+
   handleSubmit = (e,submission) => {
+    this.clearErrors();
     if (this.state.values.sku === '') {
       this.setState({
+        messageType: 'error',
         skuError: true,
-        errorList: ['SKU cannot be blank'],
+        messageList: ['SKU cannot be blank'],
       })
       return
     }
     // fitler out any empty entries or values that are the same
-    const updates = Object.entries(this.state.values).filter(val=>val[1] !== '' && val[1] !== this.props.product[val[0]])
-    for (let value of updates) {
+    const values = Object.entries(this.state.values).filter(val=>val[1] !== '' && val[1] !== this.props.product[val[0]])
+    if (values.length === 0) {
+      this.setState({
+        messageType: 'error',
+        messageList: ['Please make an update and try again'],
+      })
+      return
     }
-    console.log(updates)
+    let update = {
+      id: this.props.product._id,
+    }
+    for (let val of values) {
+      update = {
+        ...update,
+        [val[0]]: val[1],
+      }
+    }
+    console.log(update)
+    this.props.handleProductUpdate([update])
+    .then(res=>{
+      this.setState({
+        messageList: ['Product Updated'],
+        messageType: 'success',
+        product: {
+          ...this.props.product,
+          ...update,
+        },
+      })
+    })
+    .catch(e=>{
+      this.setState({
+        messageHeader: 'Something went wrong',
+        messageList: e.error.message,
+        messageType: 'error',
+      })
+    })
   }
 
   render() {
@@ -76,18 +123,20 @@ class ProductEditModal extends Component {
         <Modal.Content image scrolling>
           <Image size='medium' src='https://react.semantic-ui.com/images/wireframe/image.png' wrapped />
           <Modal.Description>
-            <Header>{this.props.product.sku}</Header>
-            <p>{this.props.product.title}</p>
-            {this.state.errorList.length > 0 && (
+            {this.state.messageList.length > 0 && (
               <Message
-                error
-                header={this.state.errorHeader || null}
-                list={this.state.errorList}
+                error={this.state.messageType === 'error'}
+                warning={this.state.messageType === 'warning'}
+                success={this.state.messageType === 'success'}
+                header={this.state.messageHeader || null}
+                list={this.state.messageList}
               />
             )}
+            <Header>{this.state.product.sku}</Header>
+            <p>{this.state.product.title}</p>
             <Form onSubmit={this.handleSubmit}>
               <Form.Group>
-                <Form.Input error={this.state.skuError} label='SKU' placeholder={this.props.product.sku} name="sku" value={sku} onChange={this.handleChange} width={4} />
+                <Form.Input error={this.state.skuError} label='SKU' placeholder="SKU" name="sku" value={sku} onChange={this.handleChange} width={4} />
                 <Form.Input label='Barcode' placeholder='Barcode' onChange={this.handleChange} name="barcode" value={barcode} width={4} />
                 <Form.Input label='Quantity' placeholder='Quantity' type="number" onChange={this.handleChange} name="quantity" value={quantity} width={4} />
                 <Form.Input label='Price' placeholder='Price' type="number" onChange={this.handleChange} name="price" value={price} width={4} />

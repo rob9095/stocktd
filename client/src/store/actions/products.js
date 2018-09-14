@@ -31,3 +31,18 @@ export function importProducts(products, currentUser, update){
 		});
 	}
 }
+
+export function updateProducts(updates, currentUser){
+  return dispatch => {
+		return new Promise((resolve,reject) => {
+			return apiCall('post', '/api/products/update', {updates, company: currentUser.user.company})
+			.then((res) => {
+				resolve(res);
+			})
+			.catch(err => {
+				dispatch(addError(err.message));
+				reject();
+			})
+		});
+	}
+}

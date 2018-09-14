@@ -102,3 +102,32 @@ exports.getProducts = async (req, res, next) => {
 		return next(err);
 	}
 }
+
+exports.updateProducts = async (req,res,next) => {
+	try {
+		let updates = req.body.updates.map(u=>{
+			if (u.sku === undefined) {
+				return {
+					updateOne: {
+						filter: { _id: u.id },
+						update: { ...u },
+						upsert: true,
+					}
+				}
+			} else {
+				return {
+					updateOne: {
+						filter: {_id: u.id},
+						update: { ...u, skuCompany: `${u.sku}-${req.body.company}` },
+						upsert: true,
+					}
+				}
+			}
+		})
+		console.log(updates)
+		let updatedProducts = await db.Product.bulkWrite(updates)
+		return res.status(200).json({updatedProducts})
+	} catch(err) {
+		return next(err)
+	}
+}

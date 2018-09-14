@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Header, Button, Checkbox, Dropdown, Menu, Icon, Table, Loader, Pagination, Segment, Grid, Transition, Label } from 'semantic-ui-react';
-import { fetchAllProducts } from '../store/actions/products';
+import { fetchAllProducts, updateProducts } from '../store/actions/products';
 import { goToTop } from 'react-scrollable-anchor';
 import ProductFilterForm from './ProductFilterForm';
 import ProductUploadForm from './ProductUploadForm';
@@ -133,6 +133,25 @@ class InventoryProductTable extends Component {
     })
   }
 
+  handleProductUpdate = (updates, modelProduct) => {
+    return new Promise((resolve,reject) => {
+      this.props.updateProducts(updates, this.props.currentUser)
+      .then((res)=>{
+        resolve({
+          status: 'success',
+          updatedProducts: res.updateProducts,
+        })
+      })
+      .catch(error=>{
+        console.log(error.message)
+        reject({
+          status: 'error',
+          error: error.message,
+        });
+      })
+    })
+  }
+
   render(){
     let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport, showFilters, showBulkMenu, showDisplayOptions } = this.state;
     let tableRows = this.state.products.map(p => {
@@ -170,6 +189,7 @@ class InventoryProductTable extends Component {
           {this.state.showEditProductModal && (
             <ProductEditModal
               handleToggle={this.handleToggle}
+              handleProductUpdate={this.handleProductUpdate}
               product={this.state.modalProduct}
             />
           )}
@@ -306,4 +326,4 @@ class InventoryProductTable extends Component {
  	};
  }
 
- export default connect(mapStateToProps, {fetchAllProducts})(InventoryProductTable);
+ export default connect(mapStateToProps, {fetchAllProducts, updateProducts})(InventoryProductTable);
