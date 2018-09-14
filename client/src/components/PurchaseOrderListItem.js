@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Checkbox, Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Rail } from 'semantic-ui-react';
+import { Checkbox, Container, Grid, Button, Label, Header, Segment, Form, Menu, Message, Icon, Transition, Rail, Item } from 'semantic-ui-react';
 import PoProductTable from './PoProductTable';
 
 class PurchaseOrderListItem extends Component {
@@ -20,6 +20,10 @@ class PurchaseOrderListItem extends Component {
     }
     handleHeaderClick = (e) => {
       e.stopPropagation();
+      if (this.state.showActionsMenu) {
+        this.handlewActionsMenuToggle(e);
+        return
+      }
       this.setState({
         isOpen: !this.state.isOpen,
       })
@@ -29,7 +33,11 @@ class PurchaseOrderListItem extends Component {
       e.stopPropagation();
     }
 
-    handleListItemClick = () => {
+    handleListItemClick = (e) => {
+      if (this.state.showActionsMenu) {
+        this.handlewActionsMenuToggle(e);
+        return
+      }
       this.props.handleRowCheck(this.props.id)
     }
 

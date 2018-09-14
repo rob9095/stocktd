@@ -12,6 +12,14 @@ body > div,
   margin-top: 8em;
 }
 
+.dgrey-bg {
+  background: #d5d6d7 !important;
+}
+
+.dgrey-bg.h:hover {
+  background: #cacbcd!important;
+}
+
 .teal-bg {
   background: #3fd1c4;
 }
@@ -412,6 +420,10 @@ a.right.item.no-hover {
 
 .ui.selection.dropdown:focus {
     border-color: #3fd1c4 !important;
+}
+
+.small-select {
+  box-shadow: 0 0px 0px 0 rgba(34,36,38,.12), 0 1px 5px 0 rgba(34,36,38,.15);
 }
 
 .small-select div.text {

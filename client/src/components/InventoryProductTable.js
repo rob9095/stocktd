@@ -5,6 +5,14 @@ import { fetchAllProducts } from '../store/actions/products';
 import { goToTop } from 'react-scrollable-anchor';
 import ProductFilterForm from './ProductFilterForm';
 import ProductUploadForm from './ProductUploadForm';
+import ProductEditModal from './ProductEditModal';
+
+const actionOptions = [
+  { key: 'copy', icon: 'copy', text: 'Copy', value: 'copy' },
+  { key: 'order', icon: 'shop', text: 'Add to order', value: 'order' },
+  { key: 'delete', icon: 'trash', text: 'Delete', value: 'delete' },
+]
+
 
 class InventoryProductTable extends Component {
   constructor(props) {
@@ -24,6 +32,8 @@ class InventoryProductTable extends Component {
       showImport: false,
       showFilters: false,
       showBulkMenu: false,
+      showDisplayOptions: false,
+      showEditProductModal: false,
     }
   }
 
@@ -112,15 +122,19 @@ class InventoryProductTable extends Component {
     this.handleProductDataFetch(1,this.state.rowsPerPage)
   }
 
-  handleMenuToggle = (e,{value}) => {
-    console.log(value)
+  handleToggle = async (e,{value, id}) => {
+    if (value === 'showEditProductModal' && id) {
+      await this.setState({
+        modalProduct: this.state.products.find(p=>p._id === id)
+      })
+    }
     this.setState({
       [value]: !this.state[value]
     })
   }
 
   render(){
-    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport, showFilters, showBulkMenu } = this.state;
+    let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport, showFilters, showBulkMenu, showDisplayOptions } = this.state;
     let tableRows = this.state.products.map(p => {
       const isSelected = this.isSelected(p._id);
       return (
@@ -141,12 +155,24 @@ class InventoryProductTable extends Component {
           <Table.Cell singleLine textAlign="center">{p.weight}</Table.Cell>
           <Table.Cell>{p.brand}</Table.Cell>
           <Table.Cell>{p.supplier}</Table.Cell>
+          <Table.Cell>
+            <Button.Group>
+              <Button id={p._id} onClick={this.handleToggle} value="showEditProductModal">Edit</Button>
+              <Dropdown options={actionOptions} text=" " floating button className='icon dgrey-bg h' />
+            </Button.Group>
+          </Table.Cell>
         </Table.Row>
       )
     })
     return(
       <div>
         <Grid container columns={2} verticalAlign="middle">
+          {this.state.showEditProductModal && (
+            <ProductEditModal
+              handleToggle={this.handleToggle}
+              product={this.state.modalProduct}
+            />
+          )}
           <Grid.Column>
             <Header size='huge'>Products</Header>
           </Grid.Column>
@@ -167,11 +193,12 @@ class InventoryProductTable extends Component {
         </Grid>
         <Grid columns={2} verticalAlign="middle" stackable>
           <Grid.Column className="header col">
+            <Label as="a" icon={{name: showDisplayOptions ? 'cancel' : 'cogs', color: showDisplayOptions ? 'red' : 'teal'}} content='Display Options' value="showDisplayOptions" onClick={this.handleToggle} />
           </Grid.Column>
           <Grid.Column textAlign="right" className="header col">
-            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content='Bulk' value="showBulkMenu" onClick={this.handleMenuToggle} />
-            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? 'red' : 'brown'}} content='Filter' value="showFilters" onClick={this.handleMenuToggle} />
-            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' value="showImport" onClick={this.handleMenuToggle} />
+            <Label as="a" icon={{name: showBulkMenu ? 'cancel' : 'tasks', color: showBulkMenu ? 'red' : 'blue'}} content='Bulk' value="showBulkMenu" onClick={this.handleToggle} />
+            <Label as="a" icon={{name: showFilters ? 'cancel' : 'filter', color: showFilters ? 'red' : 'brown'}} content='Filter' value="showFilters" onClick={this.handleToggle} />
+            <Label as="a" icon={{name: showImport ? 'cancel' : 'add', color: showImport ? 'red' : 'olive'}} content='Import' value="showImport" onClick={this.handleToggle} />
           </Grid.Column>
         </Grid>
         <Transition visible={showImport} animation='fade' duration={200} unmountOnHide transitionOnMount>
@@ -199,6 +226,8 @@ class InventoryProductTable extends Component {
                   SKU
                 </Table.HeaderCell>
                 <Table.HeaderCell
+                  sorted={column === 'title' ? direction : null}
+                  onClick={this.handleSort('title')}
                 >
                 Title
                 </Table.HeaderCell>
@@ -209,26 +238,37 @@ class InventoryProductTable extends Component {
                   Quantity
                 </Table.HeaderCell>
                 <Table.HeaderCell
+                  sorted={column === 'quantityToShip' ? direction : null}
+                  onClick={this.handleSort('quantityToShip')}
                 >
                   To Ship
                 </Table.HeaderCell>
                 <Table.HeaderCell
-
+                  sorted={column === 'price' ? direction : null}
+                  onClick={this.handleSort('price')}
                 >
                   Price
                 </Table.HeaderCell>
                 <Table.HeaderCell
-
+                  sorted={column === 'weight' ? direction : null}
+                  onClick={this.handleSort('weight')}
                 >
                   Weight
                 </Table.HeaderCell>
                 <Table.HeaderCell
+                  sorted={column === 'brand' ? direction : null}
+                  onClick={this.handleSort('brand')}
                 >
                   Brand
                 </Table.HeaderCell>
                 <Table.HeaderCell
+                  sorted={column === 'supplier' ? direction : null}
+                  onClick={this.handleSort('supplier')}
                 >
                   Supplier
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  Actions
                 </Table.HeaderCell>
               </Table.Row>
             </Table.Header>
@@ -237,18 +277,21 @@ class InventoryProductTable extends Component {
               {tableRows}
             </Table.Body>
           </Table>
-          <Pagination
-            size='mini'
-            floated='right'
-            ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
-            firstItem={{ content: <Icon name='angle double left' />, icon: true }}
-            lastItem={{ content: <Icon name='angle double right' />, icon: true }}
-            prevItem={{ content: <Icon name='angle left' />, icon: true }}
-            nextItem={{ content: <Icon name='angle right' />, icon: true }}
-            totalPages={this.state.totalPages}
-            onPageChange={this.handlePaginationChange}
-            activePage={activePage}
-          />
+          <div className="pagination-container">
+            <Pagination
+              size="mini"
+              className="raised segment page-bar"
+              ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
+              firstItem={{ content: <Icon name='angle double left' />, icon: true }}
+              lastItem={{ content: <Icon name='angle double right' />, icon: true }}
+              prevItem={{ content: <Icon name='angle left' />, icon: true }}
+              nextItem={{ content: <Icon name='angle right' />, icon: true }}
+              totalPages={this.state.totalPages}
+              onPageChange={this.handlePaginationChange}
+              activePage={activePage}
+              siblingRange={0}
+            />
+          </div>
         </Segment>
       </div>
     )
