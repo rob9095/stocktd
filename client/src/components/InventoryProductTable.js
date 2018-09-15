@@ -298,23 +298,6 @@ class InventoryProductTable extends Component {
     return(
       <div>
         <Grid container columns={2} verticalAlign="middle" stackable>
-          {this.state.showEditProductModal && (
-            <ProductEditModal
-              handleToggle={this.handleToggle}
-              handleProductUpdate={this.handleProductUpdate}
-              product={this.state.modalProduct}
-            />
-          )}
-          {this.state.showConfirmModal && (
-            <ConfirmModal
-              items={this.state.confirmItems}
-              type={this.state.confirmType}
-              onConfirm={this.handleModalConfirm}
-              onCancel={this.handleToggle}
-              header={null}
-              value="showConfirmModal"
-            />
-          )}
           <Grid.Column>
             <Header size='huge'>Products</Header>
           </Grid.Column>
@@ -333,6 +316,23 @@ class InventoryProductTable extends Component {
             </Menu>
           </Grid.Column>
         </Grid>
+        {this.state.showEditProductModal && (
+          <ProductEditModal
+            handleToggle={this.handleToggle}
+            handleProductUpdate={this.handleProductUpdate}
+            product={this.state.modalProduct}
+          />
+        )}
+        {this.state.showConfirmModal && (
+          <ConfirmModal
+            items={this.state.confirmItems}
+            type={this.state.confirmType}
+            onConfirm={this.handleModalConfirm}
+            onCancel={this.handleToggle}
+            header={null}
+            value="showConfirmModal"
+          />
+        )}
         <Grid columns={2} verticalAlign="middle" stackable>
           <Grid.Column className="header col">
             <Label as="a" icon={{name: showDisplayOptions ? 'cancel' : 'cogs', color: showDisplayOptions ? 'red' : 'teal'}} content='Display Options' value="showDisplayOptions" onClick={this.handleToggle} />
