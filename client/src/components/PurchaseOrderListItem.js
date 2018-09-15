@@ -12,16 +12,16 @@ class PurchaseOrderListItem extends Component {
       showActionsMenu: false,
       }
     }
-    handlewActionsMenuToggle = (e) => {
+    handleActionsMenuToggle = (e) => {
       e.stopPropagation();
       this.setState({
         showActionsMenu: !this.state.showActionsMenu,
       })
     }
-    handleHeaderClick = (e) => {
+    handleOpen = (e) => {
       e.stopPropagation();
       if (this.state.showActionsMenu) {
-        this.handlewActionsMenuToggle(e);
+        this.handleActionsMenuToggle(e);
         return
       }
       this.setState({
@@ -35,7 +35,7 @@ class PurchaseOrderListItem extends Component {
 
     handleListItemClick = (e) => {
       if (this.state.showActionsMenu) {
-        this.handlewActionsMenuToggle(e);
+        this.handleActionsMenuToggle(e);
         return
       }
       this.props.handleRowCheck(this.props.id)
@@ -43,7 +43,7 @@ class PurchaseOrderListItem extends Component {
 
     render() {
       let { showActionsMenu, isOpen } = this.state;
-      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor, isSelected } = this.props;
+      let {id, name, createdOn, status, statusColor, statusIcon, type, typeIcon, typeColor, isSelected, isComplete } = this.props;
       return(
         <Segment key={id} raised className="po-item-container" onClick={this.handleListItemClick}>
           <div className="po-item">
@@ -55,7 +55,7 @@ class PurchaseOrderListItem extends Component {
                 <Icon name="circle" color={statusColor} />
               </div>
               <div>
-                <Header as='h3' className="po-title" onClick={this.handleHeaderClick}>
+                <Header as='h3' className="po-title">
                   {name}
                   <Header.Subheader>Created: {createdOn}</Header.Subheader>
                 </Header>
@@ -67,7 +67,7 @@ class PurchaseOrderListItem extends Component {
               <Transition visible={showActionsMenu} animation='drop' duration={200}>
                 <div>
                   <div className="actions-menu">
-                    <Segment raised>
+                    <Segment raised className="menu-container">
                       <Menu stackable compact borderless secondary>
                           <Menu.Item as='a'><Icon color="teal" name="search plus" /> Scan PO</Menu.Item>
                           <Menu.Item as='a'><Icon color="green" name="check" /> Mark Complete</Menu.Item>
@@ -77,17 +77,32 @@ class PurchaseOrderListItem extends Component {
                   </div>
                 </div>
               </Transition>
+              {isOpen ?
+                <Icon
+                  className="actions-menu-icon"
+                  onClick={this.handleOpen}
+                  color="grey"
+                  name='chevron up'
+                />
+               :
+               <Icon
+                 className="actions-menu-icon"
+                 onClick={this.handleOpen}
+                 color="grey"
+                 name='chevron down'
+               />
+              }
               {showActionsMenu ?
                 <Icon
                   className="actions-menu-icon"
-                  onClick={this.handlewActionsMenuToggle}
+                  onClick={this.handleActionsMenuToggle}
                   color="grey"
                   name='close'
                 />
                 :
                 <Icon
                   className="actions-menu-icon"
-                  onClick={this.handlewActionsMenuToggle}
+                  onClick={this.handleActionsMenuToggle}
                   color="grey"
                   name='ellipsis vertical'
                 />
@@ -99,7 +114,6 @@ class PurchaseOrderListItem extends Component {
               <PoProductTable
                 key={id}
                 id={id}
-                isComplete={this.props.isComplete}
               />
             </div>
           </Transition>

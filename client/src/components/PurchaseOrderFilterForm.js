@@ -73,8 +73,6 @@ class PurchaseOrderFilterForm extends Component {
   render() {
     const { sku, name, dateStart, dateEnd, status, type } = this.state;
     return(
-      <Grid textAlign="center" columns={1} verticalAlign="middle">
-        <Grid.Column>
           <Form onSubmit={this.handleSubmit}>
             <Form.Group widths="equal" className="po-filter-form">
               <Grid container columns={7} verticalAlign="middle" centered stackable>
@@ -161,8 +159,6 @@ class PurchaseOrderFilterForm extends Component {
               />
             </Form.Group>
           </Form>
-        </Grid.Column>
-      </Grid>
     )
   }
 }

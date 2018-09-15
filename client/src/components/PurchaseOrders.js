@@ -345,11 +345,6 @@ class PurchaseOrders extends Component {
   render() {
     const { showImport, activeFile, update,  errorType, errorHeader, showCompleteImportButton, showActionsMenu, submitButtonText, showFilters, labelFilter, showBulkMenu, selectAll, showSortMenu, rowsPerPage, activePage } = this.state;
     const { currentUser, errors } = this.props
-    if (this.state.isLoading) {
-      return(
-        <div>loading...</div>
-      )
-    }
     let purchaseOrdersList = this.state.filteredPurchaseOrders.slice(rowsPerPage*(activePage-1), rowsPerPage*activePage).map((po)=>{
       let status = po.isComplete === true ? 'Complete' : 'Processing'
       let type = po.type === 'inbound' ? 'Inbound' : 'Outbound'
@@ -372,6 +367,7 @@ class PurchaseOrders extends Component {
           statusIcon={statusIcon}
           typeColor={typeColor}
           typeIcon={typeIcon}
+          isComplete={po.isComplete}
           handleRowCheck={this.handleRowCheck}
         />
       )
@@ -385,7 +381,7 @@ class PurchaseOrders extends Component {
           <Grid.Column textAlign="right">
             <Menu stackable secondary>
               <Menu.Menu position='right'>
-                <Dropdown item text={`${rowsPerPage} rows/page`}>
+                <Dropdown item icon={{name: 'chevron down', size: 'small', color: 'teal', className: 'dropdown-icon'}} text={`${rowsPerPage} rows/page`}>
                   <Dropdown.Menu>
                     <Dropdown.Item value="10" onClick={this.handleRowsPerPageChange}>10</Dropdown.Item>
                     <Dropdown.Item value="25" onClick={this.handleRowsPerPageChange}>25</Dropdown.Item>
@@ -464,7 +460,7 @@ class PurchaseOrders extends Component {
             <Label as="a" icon={{name: 'sort amount down', color: 'violet'}} content='Sort By' onClick={this.handleShowSortMenu} />
             {showSortMenu && (
               <span style={{position: 'relative'}}>
-                <span style={{ position: 'absolute', top: '25px', right: '-1px', zIndex: 1000, width: '100px' }}>
+                <span style={{ position: 'absolute', top: '25px', right: '-1px', zIndex: 1000}}>
                   <Button.Group size="tiny" vertical className="sort-by button-menu">
                     <Button value="name" onClick={this.handleSort}>
                       {this.state.sortBy == 'name' && (
@@ -613,36 +609,33 @@ class PurchaseOrders extends Component {
             handleFilterSearch={this.handleFilterSearch}
           />
         </Transition>
-        {purchaseOrdersList.length > 0 ?
-         purchaseOrdersList
-         :
-         <NoResultsMessage
-           showMessage={this.state.purchaseOrders.length > 0 ? false : true}
-           messageHeader={"No Purchase Orders Found"}
-           messageText={"It looks like you haven't imported any purchase orders yet."}
-           buttonText={"Import Purchase Order"}
-           handleButtonClick={this.handleShowImport}
-         />
-        }
-        {Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage)) !== 0 && (
-          <div className="pagination-container">
-            <Pagination
-              className="raised segment page-bar"
-              ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
-              firstItem={{ content: <Icon name='angle double left' />, icon: true }}
-              lastItem={{ content: <Icon name='angle double right' />, icon: true }}
-              prevItem={null}
-              nextItem={null}
-              totalPages={Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage))}
-              onPageChange={this.handlePaginationChange}
-              activePage={activePage}
+        <Segment loading={this.state.isLoading} basic className="no-pad">
+          {purchaseOrdersList}
+          {!this.state.isLoading && purchaseOrdersList.length === 0 && (
+            <NoResultsMessage
+              showMessage={this.state.purchaseOrders.length > 0 ? false : true}
+              messageHeader={"No Purchase Orders Found"}
+              messageText={"It looks like you haven't imported any purchase orders yet."}
+              buttonText={"Import Purchase Order"}
+              handleButtonClick={this.handleShowImport}
             />
-          </div>
-        )}
-        <Grid textAlign="center" columns={1} verticalAlign="middle">
-          <Grid.Column>
-          </Grid.Column>
-        </Grid>
+          )}
+          {Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage)) !== 0 && (
+            <div className="pagination-container">
+              <Pagination
+                className="raised segment page-bar"
+                ellipsisItem={{ content: <Icon name='ellipsis horizontal' />, icon: true }}
+                firstItem={{ content: <Icon name='angle double left' />, icon: true }}
+                lastItem={{ content: <Icon name='angle double right' />, icon: true }}
+                prevItem={null}
+                nextItem={null}
+                totalPages={Math.ceil(Math.floor(this.state.filteredPurchaseOrders.length / rowsPerPage))}
+                onPageChange={this.handlePaginationChange}
+                activePage={activePage}
+              />
+            </div>
+          )}
+        </Segment>
       </div>
     )
   }

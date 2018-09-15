@@ -95,11 +95,8 @@ class PoProductTable extends Component {
           <Table.Cell singleLine>{p.sku}</Table.Cell>
           <Table.Cell singleLine>{p.name}</Table.Cell>
           <Table.Cell singleLine>{p.type}</Table.Cell>
-          <Table.Cell singleLine textAlign="center" width={1}>{p.quantity}</Table.Cell>
-          {!p.isComplete && (
-            <Table.Cell singleLine textAlign="center" width={1}>{p.scannedQuantity}</Table.Cell>
-          )}
-          <Table.Cell singleLine>{p.isComplete ? 'Complete' : 'Processing'}</Table.Cell>
+          <Table.Cell singleLine>{p.quantity}</Table.Cell>
+          <Table.Cell singleLine>{p.scannedQuantity}</Table.Cell>
         </Table.Row>
       )
     })
@@ -151,18 +148,12 @@ class PoProductTable extends Component {
               >
                 Quantity
               </Table.HeaderCell>
-              {!this.props.isComplete && (
-                <Table.HeaderCell
-                  sorted={column === 'scannedQuantity' ? direction : null}
-                  onClick={this.handleSort('scannedQuantity')}
-                  textAlign="center"
-                >
-                  Scanned
-                </Table.HeaderCell>
-              )}
               <Table.HeaderCell
+                sorted={column === 'scannedQuantity' ? direction : null}
+                onClick={this.handleSort('scannedQuantity')}
+                textAlign="center"
               >
-                PO Status
+                Scanned
               </Table.HeaderCell>
             </Table.Row>
           </Table.Header>
