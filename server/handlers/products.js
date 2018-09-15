@@ -23,34 +23,30 @@ exports.processProductImport = async (req, res, next) => {
 		// 	let products = await db.Product.find({company: req.body.company})
 		// 	return res.status(200).json(addedProducts, products)
 		// }
-		// find all company products
-		let companyProducts = await db.Product.find({company: req.body.company})
 		// loop over all products and create array of updates to bulk write
-		let productUpdates = req.body.products.json.map(p => {
-			// find the related product and update interval
-			let foundProduct = companyProducts.find(product => product.sku === p.sku)
-			if (foundProduct) {
-				return {
-					updateOne: {
-						filter: { skuCompany: `${p.sku}-${req.body.company}`},
-						update: { ...p },
-					}
-				}
-			} else {
-				// otherwise insert it with inital qty of 0
-				return {
-					insertOne: {
-						document: {
-							...p,
-							company: req.body.company,
-							skuCompany: `${p.sku}-${req.body.company}`,
-							quantityToShip: 0,
-						}
-					}
+		let productUpdates = req.body.products.map(p => {
+			return {
+				updateOne: {
+					filter: { skuCompany: `${p.sku}-${req.body.company}`},
+					update: { ...p },
+					upsert: true,
 				}
 			}
 		})
+		console.log('map done')
 		let updatedProducts = await db.Product.bulkWrite(productUpdates)
+		let newProducts = await db.Product.find({company: req.body.company}).where('quantityToShip').exists(false)
+		let defaultUpdates = newProducts.map(p=>({
+			updateOne: {
+				filter: { skuCompany: `${p.sku}-${req.body.company}`},
+				update: {
+					quantityToShip: 0,
+				},
+			}
+		}))
+		if (newProducts.length > 0) {
+			await db.Product.bulkWrite(defaultUpdates)
+		}
 		return res.status(200).json({updatedProducts})
 	} catch(err) {
 		if(err.code === 11000) {

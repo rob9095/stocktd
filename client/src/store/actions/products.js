@@ -25,8 +25,7 @@ export function importProducts(products, currentUser, update){
 				resolve(res);
 			})
 			.catch(err => {
-				dispatch(addError(err.message));
-				reject();
+				reject(err);
 			})
 		});
 	}

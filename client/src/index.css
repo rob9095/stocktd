@@ -95,6 +95,10 @@ hr.large {
   padding: 0px !important;
 }
 
+.ui.label {
+  margin-top: 5px;
+}
+
 /* Home Page Hero */
 
 .section.hero {
@@ -433,7 +437,7 @@ a.right.item.no-hover {
 }
 
 .small-select {
-  box-shadow: 0 0px 0px 0 rgba(34,36,38,.12), 0 1px 5px 0 rgba(34,36,38,.15);
+  box-shadow: 0 0px 0px 0 rgba(34,36,38,.12), 0 1px 5px 0 rgba(34,36,38,.15) !important;
 }
 
 .small-select div.text {

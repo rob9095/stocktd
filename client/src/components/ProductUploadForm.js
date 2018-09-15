@@ -30,21 +30,28 @@ class ProductUploadForm extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      isLoading: false,
       activeFile: '',
       update: true,
+      json: [],
       showCompleteImportButton: false,
       errorType: '',
       errorHeader: '',
+      errorList: [],
       submitButtonText: '',
       showReSubmitHint: false,
       submitLoading: false,
     }
   }
-  
+
+  componentDidMount() {
+  }
+
   handleFileUpload = async (e) => {
     this.setState({
       activeFile: e.target.files[0].name,
       showReSubmitHint: false,
+      isLoading: true,
     })
     this.props.removeError();
     this.props.parseCSV(e)
@@ -54,11 +61,12 @@ class ProductUploadForm extends Component {
       console.log(headerCheck)
       if (headerCheck.errorType === 'warning') {
         //display warnings
-        this.props.addError(headerCheck.errorList)
         this.setState({
           errorType: headerCheck.errorType,
           errorHeader: headerCheck.errorHeader,
+          errorList: headerCheck.errorList,
           submitButtonText: 'Submit File with Warnings',
+          isLoading: false,
         })
       }
       let inputCheck = await this.props.validateInputs(jsonLowerCase, validInputs)
@@ -67,15 +75,17 @@ class ProductUploadForm extends Component {
           showCompleteImportButton: true,
           json,
           submitButtonText: 'Submit File',
+          isLoading: false,
         })
       }
     })
     .catch(err => {
-      this.props.addError(err.errorList)
       this.setState({
         errorType: err.errorType,
         errorHeader: err.errorHeader,
+        errorList: err.errorList,
         showCompleteImportButton: false,
+        isLoading: false,
       })
     })
   }
@@ -88,19 +98,20 @@ class ProductUploadForm extends Component {
     this.setState({
       submitLoading: true,
     })
-    this.props.importPurchaseOrder(this.state.json, this.props.currentUser)
+    this.props.importProducts(this.state.json, this.props.currentUser)
     .then(res=>{
       this.setState({
         submitLoading: false,
-        purchaseOrders: [...this.state.purchaseOrders,...res.addedPOs],
-        filteredPurchaseOrders: [...this.state.filteredPurchaseOrders,...res.addedPOs],
         submitButtonText: 'Import Success'
       })
+      this.props.onSuccess();
     })
     .catch(err=>{
       this.setState({
         submitLoading: false,
         submitButtonText: 'Import Failed',
+        errorList: err.message,
+        errorType: 'error',
       })
     })
   }
@@ -112,14 +123,14 @@ class ProductUploadForm extends Component {
       <Grid textAlign="center" columns={1} verticalAlign="middle">
         <Grid.Column>
           <Grid container columns={1} verticalAlign="middle" centered>
-            <Form style={{padding: '30px 10px'}}>
+            <Form loading={this.state.isLoading} style={{padding: '30px 10px'}}>
               <Header size="medium">Import or Update Products</Header>
-              {errors.message && (
+              {this.state.errorList.length > 0 && (
                 <Message
                   error={errorType === 'error'}
                   warning={errorType === 'warning'}
                   header={errorHeader}
-                  list={errors.message}
+                  list={this.state.errorList}
                   className="import-errors message-box"
                   style={{display: 'block'}}
                 />

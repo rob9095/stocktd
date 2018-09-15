@@ -286,7 +286,7 @@ class PurchaseOrders extends Component {
     sortDirection = sortDirection === 'ascending' ? 'descending' : 'ascending'
     this.setState({
       purchaseOrders: this.sortArray(purchaseOrders,sortDirection,clicked.value),
-      filteredPurchaseOrders: this.sortArray(purchaseOrders,sortDirection,clicked.value),
+      filteredPurchaseOrders: this.sortArray(filteredPurchaseOrders,sortDirection,clicked.value),
       sortDirection,
     })
   }

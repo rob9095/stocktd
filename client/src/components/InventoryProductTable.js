@@ -184,6 +184,9 @@ class InventoryProductTable extends Component {
   }
 
   handleModalConfirm = (items,type) => {
+    this.setState({
+      showConfirmModal: false,
+    })
     switch(type) {
       case 'Delete':
         this.handleProductDelete(items)
@@ -206,8 +209,15 @@ class InventoryProductTable extends Component {
           open: true,
           type: 'success',
           list: [`${res.deletedProducts.nRemoved} ${itemsText} successfully deleted`]
-        }
+        },
       })
+      setTimeout(()=>{
+        this.setState({
+          message: {
+            open: false,
+          }
+        })
+      },5000)
     })
     .catch(err=>{
       this.handleError({
@@ -250,6 +260,10 @@ class InventoryProductTable extends Component {
     })
   }
 
+  handleProductSubmit = () => {
+    this.handleProductDataFetch(this.state.activePage, this.state.rowsPerPage)
+  }
+
   render(){
     let { isLoading, products, rowsPerPage, activePage, selectAll, column, direction, skip, showImport, showFilters, showBulkMenu, showDisplayOptions } = this.state;
     let tableRows = this.state.products.map(p => {
@@ -273,9 +287,9 @@ class InventoryProductTable extends Component {
           <Table.Cell>{p.brand}</Table.Cell>
           <Table.Cell>{p.supplier}</Table.Cell>
           <Table.Cell textAlign="center">
-            <Button.Group>
+            <Button.Group size="small">
               <Button compact id={p._id} onClick={this.handleToggle} value="showEditProductModal">Edit</Button>
-              <Dropdown id={p._id} onChange={this.handleActionMenuClick} options={actionOptions} text=" " floating button compact className='icon dgrey-bg h' />
+              <Dropdown id={p._id} onChange={this.handleActionMenuClick} value={null} options={actionOptions} text=" " floating button compact className='icon dgrey-bg h' />
             </Button.Group>
           </Table.Cell>
         </Table.Row>
@@ -298,6 +312,7 @@ class InventoryProductTable extends Component {
               onConfirm={this.handleModalConfirm}
               onCancel={this.handleToggle}
               header={null}
+              value="showConfirmModal"
             />
           )}
           <Grid.Column>
@@ -329,7 +344,9 @@ class InventoryProductTable extends Component {
           </Grid.Column>
         </Grid>
         <Transition visible={showImport} animation='fade' duration={200} unmountOnHide>
-          <ProductUploadForm />
+          <ProductUploadForm
+            onSuccess={this.handleProductSubmit}
+          />
         </Transition>
         <Transition visible={showFilters} animation='fade' duration={200} unmountOnHide transitionOnMount>
           <ProductFilterForm
